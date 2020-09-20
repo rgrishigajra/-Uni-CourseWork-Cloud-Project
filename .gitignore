@@ -2,3 +2,5 @@ tryhard
 __pycache__
 test.py 
 .DS_Store
+values
+map_key_to_file
