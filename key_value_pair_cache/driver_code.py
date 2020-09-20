@@ -20,7 +20,7 @@ def n_random_request_clients(port_number, n):
     for c in range(n):
         client_instance = client(port_number)
         client_pool.append(executor.submit(
-            client_instance.spawn_random_client, 20, 100))
+            client_instance.spawn_random_client, 20, 1000))
     concurrent.futures.wait(client_pool)
     print('\n\n\n All %d Clients ran one set followed by one get sucessfully!\n\n' % (n))
     print("\nTotal time for this :", timeit.default_timer() - starttime,'\n')
