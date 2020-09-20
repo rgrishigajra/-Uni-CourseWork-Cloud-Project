@@ -7,6 +7,7 @@ import string
 import os
 import time
 import sys
+import timeit
 
 function_to_arg_map = {
     "set": "set_key",
@@ -15,12 +16,14 @@ function_to_arg_map = {
 
 
 def n_random_request_clients(port_number, n):
+    starttime = timeit.default_timer()
     for c in range(n):
         client_instance = client(port_number)
         client_pool.append(executor.submit(
             client_instance.spawn_random_client, 20, 100))
     concurrent.futures.wait(client_pool)
     print('\n\n\n All %d Clients ran one set followed by one get sucessfully!\n\n' % (n))
+    print("\nTotal time for this :", timeit.default_timer() - starttime,'\n')
 
 
 def set_key(client_instance):
@@ -28,24 +31,29 @@ def set_key(client_instance):
     key = input()
     print('\nenter value to set\n')
     value = input()
-    print("\nresponse that client got\n",client_instance.set_key(key, value))
+    print("\nresponse that client got\n", client_instance.set_key(key, value))
     return True
 
 
 def get_key(client_instance):
     print("\nEnter key to get:\n")
     key = input()
-    print("\nresponse that client got\n",client_instance.get_key(key))
+    print("\nresponse that client got\n", client_instance.get_key(key))
     return True
 
 
-def command_line_client(port_number):
+def command_line_client(port_number, server_instance):
     current_module = sys.modules[__name__]
     client_instance = client(port_number)
     while True:
-        print('\nEnter a command for client: (type `help` to see what commands are available), `exit` to leave\n')
+        print('\nEnter a command for client: (type `help` to see what commands are available), `exit` to leave, delete to delete persistent map\n')
         command = input()
-        if command == 'exit':
+        if command == 'delete':
+            print("\n\nWARNING: This will delete the persistent map and all its contents. Press 'y' to confirm\n\n")
+            conf = input()
+            if conf.lower() == 'y':
+                server_instance.delete_full_cache()
+        elif command == 'exit':
             try:
                 sys.exit(0)
             except SystemExit:
@@ -75,4 +83,4 @@ if __name__ == "__main__":
     print("\nEnter how many random clients do you want to run one set and one get request for:\n")
     n = input()
     n_random_request_clients(port_number, int(n))
-    command_line_client(port_number)
+    command_line_client(port_number, server_instance)

@@ -16,6 +16,7 @@ class server:
     function_to_arg_map = {
         "set": "set_key_value",
         "get": "get_key_value",
+        "delete":"delete_full_cache"
     }
     LOG = helper_functions.log_helper._logger("server")
     key_value = {}
