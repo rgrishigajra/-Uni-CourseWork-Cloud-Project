@@ -1,0 +1,2 @@
+export SERVER_PORT=2000
+export LOG_LEVEL=DEBUG
