@@ -146,22 +146,33 @@ A simple fast hasher of noncryptoraphical type.Hashes a string into a value and 
 log_helper.py
 A simple logger intiator for the other scripts to use. Returns a logger object.
 
-# Testing:
-**For each of the three tests, the client does a single set and a single get on the same key. It uses the spawn_random_client() method from client.
+# Testing and performance evaluation:
+**For each of the three tests, the client does a single set and a single get on the same key. It uses the spawn_random_client() method from client. Each of the keys is upto 30 bytes long and the values are upto 1000 bytes**
 
 ### for 10 clients as concurrent processes:
+![image](https://user-images.githubusercontent.com/25266353/93724610-af101180-fb76-11ea-8041-fdee393edbf2.png)
+
 ### for 100 clients as concurrent processes:
+![image](https://user-images.githubusercontent.com/25266353/93724620-c2bb7800-fb76-11ea-80de-83ef3343396e.png)
+
 ### for 1000 clients as concurrent processes:
+![image](https://user-images.githubusercontent.com/25266353/93724628-cc44e000-fb76-11ea-8871-fcac184ceed9.png)
 
 I noted that since i was logging extensively, there was considerable lag due to it. I suppose if i remove logging mode from debug(gives all logs) to just errors(only logs errors)
 the time will be much faster.
 ### output for a simple set and get requests using the command line interface from driver:
+set
+![image](https://user-images.githubusercontent.com/25266353/93724633-debf1980-fb76-11ea-96ee-2cb4fba5a777.png)
+get
+![image](https://user-images.githubusercontent.com/25266353/93724653-0615e680-fb77-11ea-8a1c-79b6a69d8ca9.png)
 
-### Testing for a key thats not there in driver code.
+### Testing for a key thats not there, with driver code.
+![image](https://user-images.githubusercontent.com/25266353/93724657-15952f80-fb77-11ea-9623-bfe014551182.png)
 
 ### an interesting test case:
 Initially I was using the os.open() function with O_EXLOCK. This keeps a lock on each seperate file allowing the server to do miltiple file dumps in parallel. The operating system handles the singaling between the processes contending for same files(This will only happen if the the key is same).The issue? silo(and many old gen systems including windows) dont support this flag! I had to switch to some other mechanism. I had two choices: Either have a global lock or individual lock for each file. Global lock would remove all advantages the server got from seperating values into seperate files. I could not figure out a way to maintain a list of active files and lock them. For now the only lock I have is on the main dictionary file that stores the key to file_name dictionary.
 Whats so interesting here? As I was poking around in debugger, I realized that the only time this will create errors is when two seperate clients fire get for the same key and the same time, but even that wasnt creating proper errors. This was mostly becuase the pickle dump I did was really fast and got completed before the process switched mid way. The small chance it created errors was when pickle dump was mid way and the processes switched, the value file would go corrupt in this case. But if the pickle was not interrupted, the later call wins.
+
 
 
 
