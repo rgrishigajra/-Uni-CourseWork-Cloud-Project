@@ -32,10 +32,13 @@ class server:
 
     def add_key_to_map(self, file_name, key):
         self.key_value[key] = file_name
-        fd = os.open(self.map_file_name, os.O_RDWR | os.O_EXLOCK | os.O_CREAT)
+        map_file_lock = threading.Lock()
+        map_file_lock.acquire()
+        fd = os.open(self.map_file_name, os.O_RDWR | os.O_CREAT)
         fd_obj = os.fdopen(fd, 'wb')
         pickle.dump(self.key_value, fd_obj, protocol=pickle.HIGHEST_PROTOCOL)
         fd_obj.close()
+        map_file_lock.release()
         self.LOG.log(10, key[:10]+"... key added to map and dumped to disc!")
         return True
 
@@ -53,7 +56,7 @@ class server:
 
     def dump_to_file(self, file_name, data_block):
         fd = os.open(os.path.join(self.values_path, file_name),
-                     os.O_RDWR | os.O_EXLOCK | os.O_CREAT)
+                     os.O_RDWR | os.O_CREAT)
         fd_obj = os.fdopen(fd, 'wb')
         pickle.dump(data_block, fd_obj, protocol=2)
         fd_obj.close()
@@ -156,6 +159,6 @@ class server:
 # driver code to run server independently on a port number from config file
 if __name__ == "__main__":
     server_instance = server()
-    port_num = int(os.environ.get('SERVER_PORT',0))
+    port_num = int(os.environ.get('SERVER_PORT', 0))
     server_instance.port_setup(port_num)
     server_instance.server_loop()
