@@ -23,6 +23,9 @@ This file has the driver code. For testing purposes this alone will suffice to c
  - delete:This will delete the entire server cache! You will loose all data (keys and values) upon this.
 
 ### server.py
+
+IMPORTANT: The server stores a dictionary of keys and hashs in map_key_to_file. If you delete this you will loose all persistent data. Individual values are stored inside the value/ folder. Deleting this folder will also lead in loosing all persistent values.
+
 The server maintains a persistent key value store on the disk. It does this by having a dictionary of keys thats stores file names. These file names are derived by hashing the key! The seperation of values into seperate file per key was to enable faster file dumps and acesses. This way the map_file is only updated when a new key is added (the file name stays the same if the key's value is being updated!). Parallel clients only need exclusive access to files now if they are trying to contend for the same key. This removes the bottleneck that comes when the server maintains only one dictionary which stores the key and the value.
 
 Has all server class and methods for a server. Can be run on its own as well .
