@@ -10,6 +10,7 @@ class client:
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
     LOG = helper_functions.log_helper._logger("client")
 
+#sends key, value to the server in required format
     def set_key(self, key, value):
         try:
             client_message = 'set ' + key + ' ' + \
@@ -22,6 +23,7 @@ class client:
         except ConnectionRefusedError as e:
             self.LOG.exception(e)
 
+#sends a get request by sending a key in required format
     def get_key(self, key):
         try:
             client_message = 'get '+key+' \r\n'
@@ -33,6 +35,8 @@ class client:
         except ConnectionRefusedError as e:
             self.LOG.exception(e)
 
+#generates a random key of random length upto max_key and random value upto random length or max_value. 
+#does a set and a get with them
     def spawn_random_client(self, max_key, max_value):
         try:
             key = ''.join(random.choice(string.ascii_lowercase)

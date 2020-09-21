@@ -16,11 +16,12 @@ class server:
     function_to_arg_map = {
         "set": "set_key_value",
         "get": "get_key_value",
-        "delete":"delete_full_cache"
+        "delete": "delete_full_cache"
     }
     LOG = helper_functions.log_helper._logger("server")
     key_value = {}
 
+#deletes the entire map(even the persistent version, along with individual value files)
     def delete_full_cache(self):
         self.LOG.log(40, "You deleted the whole Cache!, starting fresh")
         try:
@@ -31,6 +32,7 @@ class server:
             None
         return
 
+# Adds map[key] as file_name in the run time map dumping the latest map to file.
     def add_key_to_map(self, file_name, key):
         self.key_value[key] = file_name
         map_file_lock = threading.Lock()
@@ -43,6 +45,7 @@ class server:
         self.LOG.log(10, key[:10]+"... key added to map and dumped to disc!")
         return True
 
+#Loads the map thats been stored before. Automatically called on boot up of the server. 
     def read_map_from_disc(self):
         if os.path.exists(self.map_file_name):
             with open(self.map_file_name, 'rb') as handle:
@@ -55,6 +58,7 @@ class server:
         self.LOG.log(10, "map was loaded from disc!")
         return True
 
+#helper function to create a file named file_name and with the data_block it needs to store.
     def dump_to_file(self, file_name, data_block):
         fd = os.open(os.path.join(self.values_path, file_name),
                      os.O_RDWR | os.O_CREAT)
@@ -64,6 +68,7 @@ class server:
         self.LOG.log(10, file_name[:10]+"... file was dumped to disc!")
         return True
 
+# function to set the value for a key in persistent store
     def set_key_value(self, message_args):
         self.LOG.log(20, "client fired a set query!")
         try:
@@ -82,6 +87,7 @@ class server:
             self.LOG.log(10, e, sys.exc_info())
             return "NOT-STORED\r\n"
 
+# Function to get the value for a key from persistent store
     def get_key_value(self, message_args):
         self.LOG.log(20, "client fired a get query!")
         if message_args[1] not in self.key_value:
@@ -96,6 +102,7 @@ class server:
             ' \r\n' + str(value)+' \r\n' + "END\r\n"
         return resp
 
+# This is the worker thread that is spawned by the server process to serve the client parallely.
     def process(self, connection_socket, addr):
         while True:
             client_message = connection_socket.recv(4096)
@@ -119,6 +126,7 @@ class server:
             self.LOG.log(20, "message sent to client!")
             self.LOG.log(10, server_message[:30])
 
+    # Sets up the server on the given port number. Pass 0 as port number for the OS to assign an available port on its own.
     def port_setup(self, port_num):
         self.LOG.debug("Starting server with log level: %s" %
                        self.LOG_LEVEL)
@@ -136,6 +144,7 @@ class server:
         self.LOG.log(20, "server is ready to receive")
         return self.server_socket.getsockname()[1]
 
+# This starts the server loop where it will listen on the port number and initiate communications with clients.
     def server_loop(self):
         try:
             while True:

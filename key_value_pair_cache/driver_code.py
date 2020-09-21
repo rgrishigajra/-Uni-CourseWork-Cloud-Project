@@ -14,7 +14,9 @@ function_to_arg_map = {
     "get": "get_key",
 }
 
-
+'''
+spawns n clients (cli input) in parallel process pool, each does a set and a get on random key value pair of lengths 20 and 1000 respectively
+'''
 def n_random_request_clients(port_number, n):
     starttime = timeit.default_timer()
     for c in range(n):
@@ -25,7 +27,9 @@ def n_random_request_clients(port_number, n):
     print('\n\n\n All %d Clients ran one set followed by one get sucessfully!\n\n' % (n))
     print("\nTotal time for this :", timeit.default_timer() - starttime,'\n')
 
-
+'''
+cli for user input on set key and calling client function
+'''
 def set_key(client_instance):
     print("\nEnter key to set:\n")
     key = input()
@@ -34,14 +38,18 @@ def set_key(client_instance):
     print("\nresponse that client got\n", client_instance.set_key(key, value))
     return True
 
-
+'''
+cli for user input on get key and calling client function
+'''
 def get_key(client_instance):
     print("\nEnter key to get:\n")
     key = input()
     print("\nresponse that client got\n", client_instance.get_key(key))
     return True
 
-
+'''
+cli for user input on all options available. 
+'''
 def command_line_client(port_number, server_instance):
     current_module = sys.modules[__name__]
     client_instance = client(port_number)
