@@ -146,7 +146,7 @@ A simple fast hasher of noncryptoraphical type.Hashes a string into a value and 
 log_helper.py
 A simple logger intiator for the other scripts to use. Returns a logger object.
 
-# Testing and performance evaluation:
+# Testing and performance evaluation (done using burrow/silo):
 **For each of the three tests, the client does a single set and a single get on the same key. It uses the spawn_random_client() method from client. Each of the keys is upto 30 bytes long and the values are upto 1000 bytes**
 
 ### for 10 clients as concurrent processes:
@@ -172,6 +172,36 @@ get
 ### an interesting test case:
 Initially I was using the os.open() function with O_EXLOCK. This keeps a lock on each seperate file allowing the server to do miltiple file dumps in parallel. The operating system handles the singaling between the processes contending for same files(This will only happen if the the key is same).The issue? silo(and many old gen systems including windows) dont support this flag! I had to switch to some other mechanism. I had two choices: Either have a global lock or individual lock for each file. Global lock would remove all advantages the server got from seperating values into seperate files. I could not figure out a way to maintain a list of active files and lock them. For now the only lock I have is on the main dictionary file that stores the key to file_name dictionary.
 Whats so interesting here? As I was poking around in debugger, I realized that the only time this will create errors is when two seperate clients fire get for the same key and the same time, but even that wasnt creating proper errors. This was mostly becuase the pickle dump I did was really fast and got completed before the process switched mid way. The small chance it created errors was when pickle dump was mid way and the processes switched, the value file would go corrupt in this case. But if the pickle was not interrupted, the later call wins.
+
+
+# Key Challenges:
+### why the split between keys and their values in seperate files of a key-filename pair and value-inside-filename?
+At first look the extra hashing and the seperate files may look like extra and useless. But in an example where you have 1000 keys of 20 bytes each with 1kb values, you are dumping a 20mb file for each set request! And you can not do that concurrently since that would corrupt the file if you seitch threads in between your dump. Compare the same case to my implementation: 1000 keys of 20 bytes each with a 32 byte hash key which is less than a 1 KB! This will also be the only file you are dumping with a lock among all your workers. After you update the dictionary file, you can use the file for saving value wihtout contention since its unique for your key. This also gives boost when you are updating keys a lot. My approach skips upting the map file since the key and the hash dont change in this case. You just read what file you need to update and change that.
+### The hashing:
+The hashing at first might look like a needless complexity. But it simplifies the file name generating and it gives both the uniqueness a UUID name generator would provide but also a logical link that you can generate it any time you get the key. This would also generalize file name lengths to a good level.
+**So, Which hashing function and why?**
+The famous hashing functions SHA, MD5 are too computation heavy and more valuable cryptographically so they are booted out from the start. While researching hashing functions I came across https://softwareengineering.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed/145633#145633
+It is a research and comparison on between hashing functions and it puts forward  FNV-1a as superior than others:
+http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-param
+Since the code for the hasher was easy and with no dependancoes I chose FNV-1a
+### the json vs pickledump argument.
+There seems to be a general misconception that json is faster for dictionaries than pickledump. This was infact valid when pickle dump was in its first protocol(which is still the defualt protocol). The protocol is human readable and very bloated. When used with the latest one I found this to support that Pickle dump is a lot faster. 
+https://stackoverflow.com/questions/2259270/pickle-or-json/39607169#39607169
+In my personal testing, I saw the same results!
+![image](https://user-images.githubusercontent.com/25266353/93725010-c1d81580-fb79-11ea-988f-250227473734.png)
+
+### when to close a connection in server
+The answer for this was infact very straight forward. The socket.recv() is a blocking call and when the value unblocks with a 0 value or empty string, the client has closed the connection on it's socket, so you can close it too.
+
+# Limits of the server and possible improvements
+- The linux and windows documentations say that at any time a process cant have more than 1024 file pointers. So if 1024 clients access do a get request at same time the process could break( not tested, it might be that the file pointers open as threads dont count)
+- For now, the client and server only talk in buffer size of 4096 bytes. So the combined bit length for key and value should be just under 4kb. Future possible version can be where I check the bit Length from the set message and keep appending a set of messages till the value matches.
+- When will the server be slowest? if All the clients keep firing set queries. Since there is a lock on the persistent dictionary file only one client can dump the key at a time. This is the biggest possible bottleneck for now. There can be a way to reduce this by dumping in groups of sets (every 10 set requests). Also I noted that if a thread ads a key to the map right before other thread dumps it to file the file already has this key! So I could skip another dump which the server does for now.
+- Takes around 20 seconds for 1000 concurrent clients to do one set and one get request(this could be muxh faster if I was not logging heavily). The key was avg 10 bytes in length and value was avg 500 bytes in length.
+- I handle cases when the files and folders required to dump data are not there. But if the file was created but curropted it creates an exception on opening. Future improved version can be a case where I deal with this.
+
+
+
 
 
 
