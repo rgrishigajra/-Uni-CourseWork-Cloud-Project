@@ -1,16 +1,28 @@
 from socket import *
 import string
 import random
-import helper_functions.log_helper
+import key_value_pair_cache.helper_functions.log_helper as log_helper
 import os
 import random
 
 
 class client:
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
-    LOG = helper_functions.log_helper._logger("client")
+    LOG = log_helper._logger("client")
 
-#sends key, value to the server in required format
+    def append_key(self, key, value):
+        try:
+            client_message = 'append ' + key + ' ' + \
+                str(len(value.encode()))+' \r\n' + value + '\r\n'
+            self.client_socket.send(client_message.encode())
+            self.LOG.log(20, 'Client sent a append request!')
+            server_output = self.client_socket.recv(4096)
+            self.LOG.log(10, server_output)
+            return server_output.decode()
+        except ConnectionRefusedError as e:
+            self.LOG.exception(e)
+# sends key, value to the server in required format
+
     def set_key(self, key, value):
         try:
             client_message = 'set ' + key + ' ' + \
@@ -23,7 +35,7 @@ class client:
         except ConnectionRefusedError as e:
             self.LOG.exception(e)
 
-#sends a get request by sending a key in required format
+# sends a get request by sending a key in required format
     def get_key(self, key):
         try:
             client_message = 'get '+key+' \r\n'
@@ -35,8 +47,8 @@ class client:
         except ConnectionRefusedError as e:
             self.LOG.exception(e)
 
-#generates a random key of random length upto max_key and random value upto random length or max_value. 
-#does a set and a get with them
+# generates a random key of random length upto max_key and random value upto random length or max_value.
+# does a set and a get with them
     def spawn_random_client(self, max_key, max_value):
         try:
             key = ''.join(random.choice(string.ascii_lowercase)
@@ -56,6 +68,14 @@ class client:
                 return False
         except ConnectionRefusedError as e:
             self.LOG.exception(e)
+
+    def ping_server(self):
+        self.LOG.log(10, 'pinging server')
+        self.client_socket.send('ping \r\n'.encode())
+        server_output = self.client_socket.recv(4096)
+        if (server_output.decode() == "ONLINE\r\n"):
+            return True
+        return False
 
     def close_client(self):
         self.client_socket.close()

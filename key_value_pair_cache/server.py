@@ -1,12 +1,13 @@
 from socket import *
 import sys
 import os
-import helper_functions.log_helper
-from helper_functions.hash_fnv1a import fnv1a_32
+import key_value_pair_cache.helper_functions.log_helper as log_helper
+from key_value_pair_cache.helper_functions.hash_fnv1a import fnv1a_32
 import threading
 import pickle
 import shutil
 import json
+import configparser
 
 
 class server:
@@ -16,14 +17,20 @@ class server:
     function_to_arg_map = {
         "set": "set_key_value",
         "get": "get_key_value",
-        "delete": "delete_full_cache"
+        "delete": "delete_full_cache",
+        "ping": "check_status",
+        "append": "append_key_value"
     }
-    LOG = helper_functions.log_helper._logger("server")
+    LOG = log_helper._logger("key-value server")
     key_value = {}
+    file_value = {}
 
-#deletes the entire map(even the persistent version, along with individual value files)
+    def check_status(self, message_args):
+        return "ONLINE\r\n"
+        # deletes the entire map(even the persistent version, along with individual value files)
+
     def delete_full_cache(self):
-        self.LOG.log(40, "You deleted the whole Cache!, starting fresh")
+        self.LOG.log(50, "You deleted the whole Cache!, starting fresh")
         try:
             shutil.rmtree(self.values_path)
             os.mkdir(self.values_path)
@@ -45,30 +52,42 @@ class server:
         self.LOG.log(10, key[:10]+"... key added to map and dumped to disc!")
         return True
 
-#Loads the map thats been stored before. Automatically called on boot up of the server. 
+# Loads the map thats been stored before. Automatically called on boot up of the server.
     def read_map_from_disc(self):
         if os.path.exists(self.map_file_name):
             with open(self.map_file_name, 'rb') as handle:
-                b = pickle.load(handle)
-                if isinstance(b, dict):
-                    self.key_value = b.copy()
-        else:
-            self.key_value = {}
-            open(self.map_file_name, 'x')
-        self.LOG.log(10, "map was loaded from disc!")
+                try:
+                    b = pickle.load(handle)
+                    if isinstance(b, dict):
+                        self.key_value = b.copy()
+                    self.LOG.log(10, "map was loaded from disc!")
+                    return True
+                except EOFError:
+                    self.LOG.log(50, "map file had EOF error, starting fresh!")
+                    self.delete_full_cache()
+        self.key_value = {}
+        open(self.map_file_name, 'x')
+        self.LOG.log(50, "New map was loaded from disc!")
         return True
 
-#helper function to create a file named file_name and with the data_block it needs to store.
+# helper function to create a file named file_name and with the data_block it needs to store.
     def dump_to_file(self, file_name, data_block):
+        self.file_value[file_name] = data_block
         fd = os.open(os.path.join(self.values_path, file_name),
                      os.O_RDWR | os.O_CREAT)
         fd_obj = os.fdopen(fd, 'wb')
-        pickle.dump(data_block, fd_obj, protocol=2)
+        pickle.dump(data_block, fd_obj, protocol=pickle.HIGHEST_PROTOCOL)
         fd_obj.close()
         self.LOG.log(10, file_name[:10]+"... file was dumped to disc!")
         return True
 
+    def append_line_to_file(self, file_name, data_block):
+        with open(os.path.join(self.values_path, file_name), "a") as doc:
+            doc.write(data_block)
+        self.LOG.log(10, file_name[:10]+"... file had line appended to disc!")
+        return True
 # function to set the value for a key in persistent store
+
     def set_key_value(self, message_args):
         self.LOG.log(20, "client fired a set query!")
         try:
@@ -87,16 +106,38 @@ class server:
             self.LOG.log(10, e, sys.exc_info())
             return "NOT-STORED\r\n"
 
+    def append_key_value(self, message_args):
+        self.LOG.log(20, "client fired an append query!")
+        try:
+            if message_args[1] in self.key_value:  # check if key is present already
+                self.append_line_to_file(
+                    message_args[1], message_args[3].replace('\r\n', ''))
+            else:  # if new key is to be inserted
+                # using a fast hashing function to create a suitable unique file name
+                file_name = str(message_args[1])
+                self.add_key_to_map(file_name, message_args[1])
+                self.append_line_to_file(
+                    file_name, message_args[3].replace('\r\n', ''))
+            return "STORED\r\n"
+        except Exception as e:
+            self.LOG.exception('exception while append()', e)
+            self.LOG.log(10, e, sys.exc_info())
+            return "NOT-STORED\r\n"
+
 # Function to get the value for a key from persistent store
     def get_key_value(self, message_args):
         self.LOG.log(20, "client fired a get query!")
         if message_args[1] not in self.key_value:
             value = ''
         else:
-            fd_obj = open(os.path.join(self.values_path,
-                                       self.key_value[message_args[1]]), 'rb')
-            value = pickle.load(fd_obj)
-            fd_obj.close()
+            if self.key_value[message_args[1]] not in self.file_value:
+                fd_obj = open(os.path.join(self.values_path,
+                                           self.key_value[message_args[1]]), 'rb')
+                value = pickle.load(fd_obj)
+                fd_obj.close()
+                self.file_value[self.key_value[message_args[1]]] = value
+            else:
+                value = self.file_value[self.key_value[message_args[1]]]
         resp = 'VALUE ' + \
             str(message_args[1])+' ' + str(len(value)) + \
             ' \r\n' + str(value)+' \r\n' + "END\r\n"
@@ -112,7 +153,9 @@ class server:
                 return
             self.LOG.log(20, "client message received!")
             self.LOG.log(10, client_message[:30])
-            client_msg_args = client_message.decode().split(" ")
+            client_msg_new_line_sep = client_message.decode().split(" \r\n")
+            client_msg_args = client_msg_new_line_sep[0].split(' ')
+            client_msg_args.append(client_msg_new_line_sep[1])
             try:
                 result = getattr(self, self.function_to_arg_map[client_msg_args[0]])(
                     client_msg_args)
@@ -128,8 +171,7 @@ class server:
 
     # Sets up the server on the given port number. Pass 0 as port number for the OS to assign an available port on its own.
     def port_setup(self, port_num):
-        self.LOG.debug("Starting server with log level: %s" %
-                       self.LOG_LEVEL)
+        self.LOG.log(50, "Starting key-value server")
         self.read_map_from_disc()
         try:
             os.mkdir(self.values_path)
@@ -169,6 +211,7 @@ class server:
 # driver code to run server independently on a port number from config file
 if __name__ == "__main__":
     server_instance = server()
-    port_num = int(os.environ.get('SERVER_PORT', 0))
+    config = configparser.ConfigParser()
+    port_num = int(config['app_config']['KeyValueServerPort'])
     server_instance.port_setup(port_num)
     server_instance.server_loop()

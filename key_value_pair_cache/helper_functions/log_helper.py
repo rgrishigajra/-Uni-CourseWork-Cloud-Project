@@ -1,8 +1,10 @@
 import logging
 import os
+import configparser
 
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
-
+config = configparser.ConfigParser()
+config.read('config.ini')
+LOG_LEVEL = config['app_config']['LogLevel']
 
 def _logger(name="default"):
     '''
