@@ -19,7 +19,9 @@ class server:
         "get": "get_key_value",
         "delete": "delete_full_cache",
         "ping": "check_status",
-        "append": "append_key_value"
+        "append": "append_key_value",
+        "searchid": 'search_keys_by_value',
+        "getlines": "get_lines_keys_value"
     }
     LOG = log_helper._logger("key-value server")
     key_value = {}
@@ -38,6 +40,16 @@ class server:
         except (FileExistsError, FileNotFoundError):
             None
         return
+
+    def search_keys_by_value(self, message_args):
+        self.LOG.log(10, "searching keys with "+message_args[1]+" id")
+        l = ''
+        for key in self.key_value.keys():
+            if "mapper"+message_args[1] == key[:len("mapper"+message_args[1])]:
+                l += (key+' ')
+        resp = 'KEYS ' + str(len(l.encode())) + \
+            ' \r\n' + str(l)+' \r\n' + "END\r\n"
+        return resp
 
 # Adds map[key] as file_name in the run time map dumping the latest map to file.
     def add_key_to_map(self, file_name, key):
@@ -82,9 +94,13 @@ class server:
         return True
 
     def append_line_to_file(self, file_name, data_block):
+        # get exclusive access to the file while appending
+        exec(file_name + " = threading.Lock()")
+        exec(file_name + ".acquire()")
         with open(os.path.join(self.values_path, file_name), "a") as doc:
             doc.write(data_block)
         self.LOG.log(10, file_name[:10]+"... file had line appended to disc!")
+        exec(file_name + ".release()")
         return True
 # function to set the value for a key in persistent store
 
@@ -112,12 +128,20 @@ class server:
             if message_args[1] in self.key_value:  # check if key is present already
                 self.append_line_to_file(
                     message_args[1], message_args[3].replace('\r\n', ''))
+                if self.key_value[message_args[1]] in self.file_value:
+                    self.file_value[self.key_value[message_args[1]]
+                                    ] += message_args[3].replace('\r\n', '')
+                else:
+                    self.file_value[self.key_value[message_args[1]]
+                                    ] = message_args[3].replace('\r\n', '')
             else:  # if new key is to be inserted
                 # using a fast hashing function to create a suitable unique file name
                 file_name = str(message_args[1])
                 self.add_key_to_map(file_name, message_args[1])
                 self.append_line_to_file(
                     file_name, message_args[3].replace('\r\n', ''))
+                self.file_value[self.key_value[message_args[1]]
+                                ] = message_args[3].replace('\r\n', '')
             return "STORED\r\n"
         except Exception as e:
             self.LOG.exception('exception while append()', e)
@@ -134,6 +158,23 @@ class server:
                 fd_obj = open(os.path.join(self.values_path,
                                            self.key_value[message_args[1]]), 'rb')
                 value = pickle.load(fd_obj)
+                fd_obj.close()
+                self.file_value[self.key_value[message_args[1]]] = value
+            else:
+                value = self.file_value[self.key_value[message_args[1]]]
+        resp = 'VALUE ' + \
+            str(message_args[1])+' ' + str(len(value)) + \
+            ' \r\n' + str(value)+' \r\n' + "END\r\n"
+        return resp
+
+    def get_lines_keys_value(self, message_args):
+        if message_args[1] not in self.key_value:
+            value = ''
+        else:
+            if self.key_value[message_args[1]] not in self.file_value:
+                fd_obj = open(os.path.join(self.values_path,
+                                           self.key_value[message_args[1]]), 'r')
+                value = fd_obj.read()
                 fd_obj.close()
                 self.file_value[self.key_value[message_args[1]]] = value
             else:
@@ -164,7 +205,15 @@ class server:
                 self.LOG.log(
                     40, "Bad request from the client, function does not exist")
                 result = 'INVALID REQUEST\r\n'
-            server_message = result.encode()
+            server_message = result.encode('ascii', 'ignore')
+            # if len(server_message) > 4096:
+            #     msg_warning = 'MULTIMSG ' + str(len(server_message))
+            #     connection_socket.send(msg_warning.encode())
+            #     itr = 0
+            #     while itr < len(server_message):
+            #         connection_socket.send(server_message[itr:itr+4096])
+            #         itr += 4096
+            # else:
             connection_socket.send(server_message)
             self.LOG.log(20, "message sent to client!")
             self.LOG.log(10, server_message[:30])

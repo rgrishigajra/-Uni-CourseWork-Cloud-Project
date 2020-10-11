@@ -35,7 +35,52 @@ class client:
         except ConnectionRefusedError as e:
             self.LOG.exception(e)
 
+    def get_assignment(self, mapper_name, mapper_port):
+        return 0
+
+    def get_mapper_keys(self, mapper_id):
+        try:
+            client_message = 'searchid' + ' ' + str(mapper_id)+" \r\n"
+            self.client_socket.send(client_message.encode())
+            self.LOG.log(20, 'Client sent a set request!')
+            server_output = self.client_socket.recv(4096)
+            self.LOG.log(10, server_output)
+            # returns a list of keys
+            return server_output.decode().split(' \r\n')[1].split(' ')[:-1]
+        except ConnectionRefusedError as e:
+            self.LOG.exception(e)
+
+    def get_key_lines(self, key):
+        try:
+            client_message = 'getlines '+key+' \r\n'
+            self.client_socket.send(client_message.encode())
+            self.LOG.log(20, 'Client sent a get lines request!')
+            server_output = self.client_socket.recv(4096)
+            decoded_msg = server_output.decode()
+            value_len = len(decoded_msg.split(' \r\n')[1])
+            value_len_given_by_server = int(
+                decoded_msg.split(' \r\n')[0].split(' ')[2])
+            while value_len_given_by_server > value_len:
+                server_output = self.client_socket.recv(
+                    min(4096, value_len_given_by_server-value_len))
+                decoded_msg += server_output.decode("utf-8", "ignore")
+                value_len += min(4096, value_len_given_by_server-value_len)
+                if decoded_msg[len(decoded_msg)-len('END\r\n'):]=='END\r\n':
+                    break
+            # if 'MULTIMSG' == decoded_msg[:len("MULTIMSG")]:
+            #     server_output = ''.encode()
+            #     lenght_of_msg = int(decoded_msg.split(' ')[1])
+                # while lenght_of_msg > 0:
+                #     server_output += self.client_socket.recv(4096)
+                #     lenght_of_msg -= 4096
+                # decoded_msg = server_output.decode()
+                # self.LOG.log(10, server_output)
+            return decoded_msg
+        except ConnectionRefusedError as e:
+            self.LOG.exception(e)
+        return True
 # sends a get request by sending a key in required format
+
     def get_key(self, key):
         try:
             client_message = 'get '+key+' \r\n'
