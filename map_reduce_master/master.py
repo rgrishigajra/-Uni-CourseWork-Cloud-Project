@@ -30,8 +30,9 @@ class map_reduce:
         return True
 
     def boot_mappers(self):
-        m = mapper()
-        
+        for mapper_name, mapper_port in self.config['mapper_ports'].items():
+            m = mapper(mapper_name, mapper_port)
+            break
         return True
 
     def run_map_reduce(self):
@@ -45,10 +46,10 @@ class map_reduce:
         self.LOG.log(50, "Booting up map-reduce master")
         self.master_client = client(
             int(self.config['app_config']['KeyValueServerPort']))
-        while True:
-            if not self.master_client.ping_server():
-                self.LOG.log(50, 'key-value is store offline')
-                time.sleep(10)
-            else:
-                break
+        # while True:
+        #     if not self.master_client.ping_server():
+        #         self.LOG.log(50, 'key-value is store offline')
+        #         time.sleep(10)
+        #     else:
+        #         break
         return
