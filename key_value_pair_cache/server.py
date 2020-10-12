@@ -45,7 +45,7 @@ class server:
         self.LOG.log(10, "searching keys with "+message_args[1]+" id")
         l = ''
         for key in self.key_value.keys():
-            if "mapper"+message_args[1] == key[:len("mapper"+message_args[1])]:
+            if message_args[1] == key[:len(message_args[1])]:
                 l += (key+' ')
         resp = 'KEYS ' + str(len(l.encode())) + \
             ' \r\n' + str(l)+' \r\n' + "END\r\n"
@@ -95,12 +95,12 @@ class server:
 
     def append_line_to_file(self, file_name, data_block):
         # get exclusive access to the file while appending
-        exec(file_name + " = threading.Lock()")
-        exec(file_name + ".acquire()")
+        # exec(file_name + " = threading.Lock()")
+        # exec(file_name + ".acquire(blocking=True, timeout=-1)")
         with open(os.path.join(self.values_path, file_name), "a") as doc:
             doc.write(data_block)
         self.LOG.log(10, file_name[:10]+"... file had line appended to disc!")
-        exec(file_name + ".release()")
+        # exec(file_name + ".release()")
         return True
 # function to set the value for a key in persistent store
 

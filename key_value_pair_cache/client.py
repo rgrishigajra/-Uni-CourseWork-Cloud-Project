@@ -38,9 +38,9 @@ class client:
     def get_assignment(self, mapper_name, mapper_port):
         return 0
 
-    def get_mapper_keys(self, mapper_id):
+    def get_keys(self, id):
         try:
-            client_message = 'searchid' + ' ' + str(mapper_id)+" \r\n"
+            client_message = 'searchid' + ' ' + str(id)+" \r\n"
             self.client_socket.send(client_message.encode())
             self.LOG.log(20, 'Client sent a set request!')
             server_output = self.client_socket.recv(4096)
@@ -57,15 +57,17 @@ class client:
             self.LOG.log(20, 'Client sent a get lines request!')
             server_output = self.client_socket.recv(4096)
             decoded_msg = server_output.decode()
+            if decoded_msg == ' \r\nEND\r\n':
+                return False
             value_len = len(decoded_msg.split(' \r\n')[1])
             value_len_given_by_server = int(
-                decoded_msg.split(' \r\n')[0].split(' ')[2])
+                decoded_msg.split(' \r\n')[0].split(' ')[2]) +len(' \r\nEND\r\n')
             while value_len_given_by_server > value_len:
                 server_output = self.client_socket.recv(
                     min(4096, value_len_given_by_server-value_len))
                 decoded_msg += server_output.decode("utf-8", "ignore")
                 value_len += min(4096, value_len_given_by_server-value_len)
-                if decoded_msg[len(decoded_msg)-len('END\r\n'):]=='END\r\n':
+                if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
                     break
             # if 'MULTIMSG' == decoded_msg[:len("MULTIMSG")]:
             #     server_output = ''.encode()
