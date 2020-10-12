@@ -11,7 +11,9 @@ if __name__ == "__main__":
     config.read('config.ini')
     key_value_server = server()
     executor = concurrent.futures.ProcessPoolExecutor()
-    key_value_server.port_setup(int(config['app_config']['KeyValueServerPort']))
+    key_value_server.port_setup(
+        int(config['app_config']['KeyValueServerPort']))
+    key_value_server.delete_full_cache()
     time.sleep(5)
     server_process = executor.submit(key_value_server.server_loop)
     master_map_reduce = map_reduce()
