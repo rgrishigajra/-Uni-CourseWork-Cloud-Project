@@ -63,6 +63,8 @@ class client:
             value_len_given_by_server = int(
                 decoded_msg.split(' \r\n')[0].split(' ')[2]) +len(' \r\nEND\r\n')
             while value_len_given_by_server > value_len:
+                if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
+                    break
                 server_output = self.client_socket.recv(
                     min(4096, value_len_given_by_server-value_len))
                 decoded_msg += server_output.decode("utf-8", "ignore")
