@@ -7,6 +7,7 @@ import time
 import pickle
 import concurrent.futures
 from reducer.reducer import reducer
+from collections import defaultdict
 
 
 class map_reduce:
@@ -41,23 +42,22 @@ class map_reduce:
             self.mapper_pool.append(self.executor.submit(
                 m.get_mapper_data))
         self.LOG.log(50, 'Waiting for mappers')
-        concurrent.futures.wait(self.mapper_pool)
-        self.LOG.log(50, 'Done for mappers')
+        # concurrent.futures.wait(self.mapper_pool)
+
         # break
         return True
 
     def boot_reducers(self):
         id = 0
         self.LOG.log(50, 'Booting up reducers')
-        for reducer_name, reducer_port in self.config['mapper_ports'].items():
+        for reducer_name, reducer_port in self.config['reducer_ports'].items():
             r = reducer(reducer_name, reducer_port)
             # r.get_reducer_data()
             self.reducer_pool.append(self.executor.submit(
                 r.get_reducer_data))
             # break
         self.LOG.log(50, 'Waiting for reducers')
-        concurrent.futures.wait(self.reducer_pool)
-        self.LOG.log(50, 'Done for reducers')
+        # concurrent.futures.wait(self.reducer_pool)
         return True
 
     def get_output(self):
@@ -74,8 +74,86 @@ class map_reduce:
                      str(self.config['app_config']['OutputFile']))
         return True
 
+    def moniter_mappers(self):
+        try:
+            no_of_loops = 0
+            while True:
+                no_of_loops += 1
+                time.sleep(5)
+                status_dict = defaultdict(str)
+                total_dict = defaultdict(int)
+                self.LOG.log(
+                    50, 'master checking mapper health, heartbeat:' + str(no_of_loops))
+                keys = self.master_client.get_keys('mapper_status')
+                for key in keys:
+                    val = self.master_client.get_key(key)
+                    status_dict[key] = val.split(' \r\n')[1]
+                    total_dict[val.split(' \r\n')[1]] += 1
+                self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
+                             str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
+                if total_dict['finished'] == int(self.config['app_config']['NumberOfMappers']):
+                    break
+                for running_mapper in status_dict.keys():
+                    if status_dict[running_mapper] == 'assigned':
+                        if total_dict['finished'] > int(self.config['app_config']['NumberOfMappers'])//2 and no_of_loops >= 3:
+                            self.master_client.set_key(running_mapper, 'idle')
+                            self.LOG.log(
+                                50, 'master spawned a new mapper with id '+str(running_mapper))
+                        if no_of_loops >= 5:
+                            self.LOG.log(
+                                50, 'master spawned a new mapper with id '+str(running_mapper))
+                            self.master_client.set_key(running_mapper, 'idle')
+                    if status_dict[running_mapper] == 'idle':
+                        no_of_loops = 0
+                        m = mapper(running_mapper, '')
+                        self.mapper_pool.append(self.executor.submit(
+                            m.get_mapper_data))
+        except Exception as e:
+            self.LOG.log(30, e)
+        self.LOG.log(50, 'Done for mappers')
+        return True
+
+    def moniter_reducers(self):
+        try:
+            no_of_loops = 0
+            while True:
+                no_of_loops += 1
+                time.sleep(5)
+                status_dict = defaultdict(str)
+                total_dict = defaultdict(int)
+                self.LOG.log(
+                    50, 'master checking reducer health, heartbeat:' + str(no_of_loops))
+                keys = self.master_client.get_keys('reducer_status')
+                for key in keys:
+                    val = self.master_client.get_key(key)
+                    status_dict[key] = val.split(' \r\n')[1]
+                    total_dict[val.split(' \r\n')[1]] += 1
+                self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
+                                 str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
+                if total_dict['finished'] == int(self.config['app_config']['NumberOfReducers']):
+                    break
+                for running_reducer in status_dict.keys():
+                    if status_dict[running_reducer] == 'assigned':
+                        if total_dict['finished'] > int(self.config['app_config']['NumberOfReducers'])//2 and no_of_loops >= 3:
+                            self.LOG.log(
+                                50, 'master spawned a new reducer with id '+str(running_reducer))
+                            self.master_client.set_key(running_reducer, 'idle')
+                        if no_of_loops >= 5:
+                            self.master_client.set_key(running_reducer, 'idle')
+                            self.LOG.log(
+                                50, 'master spawned a new reducer with id '+str(running_reducer))
+                    if status_dict[running_reducer] == 'idle':
+                        no_of_loops = 0
+                        r = reducer(running_reducer, '')
+                        self.reducer_pool.append(self.executor.submit(
+                            r.get_reducer_data))
+        except Exception as e:
+            self.LOG.log(30, e)
+        self.LOG.log(50, 'Done for reducers')
+        return True
+
     def create_status_map(self):
-        self.LOG.log(50,'creating status map for mappers and reducers')
+        self.LOG.log(50, 'creating status map for mappers and reducers')
         for i in range(int(self.config['app_config']['NumberOfMappers'])):
             self.master_client.set_key('mapper_status'+str(i), 'idle')
         for i in range(int(self.config['app_config']['NumberOfReducers'])):
@@ -88,7 +166,9 @@ class map_reduce:
         self.create_status_map()
         self.divide_loads()
         self.boot_mappers()
+        self.moniter_mappers()
         self.boot_reducers()
+        self.moniter_reducers()
         self.get_output()
         return True
 

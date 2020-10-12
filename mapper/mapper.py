@@ -8,6 +8,7 @@ import marshal
 import types
 import re
 from key_value_pair_cache.helper_functions.hash_fnv1a import fnv1a_32
+import random
 
 
 class mapper:
@@ -43,25 +44,34 @@ class mapper:
         return mapper_output
 
     def get_mapper_data(self):
-        # self.mapper_id = self.mapper_client.get_assignment(
-        #     self.mapper_name, self.mapper_port)
-        keys = self.mapper_client.get_keys("mapper"+str(self.mapper_id))
-        data = []
-        for key in keys:
-            data = self.mapper_client.get_key_lines(key)
-            self.LOG.log(50, "mapper "+str(self.mapper_id) +
-                         " received data "+str(len(data)))
-            kay_val_split_msg = data.split(' \r\n')
-            key_value_pair = [data.split(' \r\n')[0].split(
-                ' ')[1][len("mapper"+str(self.mapper_id)):]]
-            key_value_pair.append(kay_val_split_msg[1])
-            # runs serial mapper script
-            mapper_output = self.run_serialized_mapper(
-                key_value_pair[0], key_value_pair[1])
-            # gets a list of (key,value) pairs, storing it in kay value store for each reducer
-            self.send_mapper_output(mapper_output)
-        self.LOG.log(50, 'mapper '+str(self.mapper_id)+" done")
-        return True
+        try:
+            # self.mapper_id = self.mapper_client.get_assignment(
+            #     self.mapper_name, self.mapper_port)
+            keys = self.mapper_client.get_keys("mapper"+str(self.mapper_id))
+            data = []
+            for key in keys:
+                data = self.mapper_client.get_key_lines(key)
+                self.LOG.log(50, "mapper "+str(self.mapper_id) +
+                             " received data "+str(len(data)))
+                kay_val_split_msg = data.split(' \r\n')
+                key_value_pair = [data.split(' \r\n')[0].split(
+                    ' ')[1][len("mapper"+str(self.mapper_id)):]]
+                key_value_pair.append(kay_val_split_msg[1])
+                # runs serial mapper script
+                mapper_output = self.run_serialized_mapper(
+                    key_value_pair[0], key_value_pair[1])
+                # gets a list of (key,value) pairs, storing it in kay value store for each reducer
+                self.send_mapper_output(mapper_output)
+            if random.randrange(int(self.config['app_config']['NumberOfMappers'])+1) == int(self.config['app_config']['NumberOfMappers']) and self.config['app_config']['TestMapperFail'] == "True":
+                self.LOG.log(30,"Creating an exception in mapper "+str(self.mapper_id)+" for testing")
+                raise Exception
+            self.mapper_client.set_key(
+                'mapper_status'+str(self.mapper_id), 'finished')
+            self.LOG.log(50, 'mapper '+str(self.mapper_id)+" done")
+            return True
+        except Exception as e:
+            self.LOG.log(30, "Mapper "+str(self.mapper_id)+" broke down")
+            return False
 
     def get_mapper_id(self):
         keys = self.mapper_client.get_keys('mapper_status')

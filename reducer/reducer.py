@@ -8,6 +8,7 @@ import marshal
 import types
 import re
 from key_value_pair_cache.helper_functions.hash_fnv1a import fnv1a_32
+import random
 
 
 class reducer:
@@ -40,25 +41,34 @@ class reducer:
         return reducer_output
 
     def get_reducer_data(self):
-        keys = self.reducer_client.get_keys("reducer"+str(self.reducer_id))
-        data = ''
-        for key in keys:
-            data = self.reducer_client.get_key_lines(key)
-            self.LOG.log(50, "reducer "+str(self.reducer_id) +
-                         " received data "+str(len(data)))
-            lines = data.split('\n')[1:]
-            input_list = []
-            # split from lines to list of tuples
-            for line in lines:
-                words = line.split()
-                if len(words) == 2:
-                    input_list.append((words[0], words[1]))
-        self.LOG.log(50, "reducer "+str(self.reducer_id) +
-                     " collected these keys data :"+str(len(input_list)))
-        # runs serial reducer script
-        reducer_output = self.run_serialized_reducer(input_list)
-        self.send_reducer_output(reducer_output)
-        return True
+        try:
+            keys = self.reducer_client.get_keys("reducer"+str(self.reducer_id))
+            data = ''
+            for key in keys:
+                data = self.reducer_client.get_key_lines(key)
+                self.LOG.log(50, "reducer "+str(self.reducer_id) +
+                             " received data "+str(len(data)))
+                lines = data.split('\n')[1:]
+                input_list = []
+                # split from lines to list of tuples
+                for line in lines:
+                    words = line.split()
+                    if len(words) == 2:
+                        input_list.append((words[0], words[1]))
+                self.LOG.log(50, "reducer "+str(self.reducer_id) +
+                            " collected these keys data :"+str(len(input_list)))
+                # runs serial reducer script
+                reducer_output = self.run_serialized_reducer(input_list)
+                self.send_reducer_output(reducer_output)
+            if random.randrange(int(self.config['app_config']['NumberOfReducers'])+1) ==int(self.config['app_config']['NumberOfReducers']) and self.config['app_config']['TestReducerFail'] == "True":
+                self.LOG.log(30,"Creating an exception in reducer "+str(self.reducer_id)+" for testing")
+                raise Exception
+            self.reducer_client.set_key(
+                'reducer_status'+str(self.reducer_id), 'finished')
+            return True
+        except Exception as e:
+            self.LOG.log(30, "Reducer "+str(self.reducer_id)+" broke down")
+            return False
 
     def get_reducer_id(self):
         keys = self.reducer_client.get_keys('reducer_status')
@@ -66,7 +76,8 @@ class reducer:
             val = self.reducer_client.get_key(key)
             if val.split(' \r\n')[1] == 'idle':
                 id = val.split(' \r\n')[0].split()[1][len('reducer_status'):]
-                self.reducer_client.set_key('reducer_status'+str(id), 'assigned')
+                self.reducer_client.set_key(
+                    'reducer_status'+str(id), 'assigned')
                 return int(id)
         return 99999
 
