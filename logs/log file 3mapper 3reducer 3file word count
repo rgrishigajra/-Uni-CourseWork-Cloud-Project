@@ -1,0 +1,171 @@
+Last login: Mon Oct 12 17:49:52 on ttys000
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+(base) Rishabhs-MacBook-Pro:Uni-CourseWork-Cloud-Project rishabhgajra$ code .
+(base) Rishabhs-MacBook-Pro:Uni-CourseWork-Cloud-Project rishabhgajra$ code .
+(base) Rishabhs-MacBook-Pro:Uni-CourseWork-Cloud-Project rishabhgajra$ python3 driver_code.py 
+
+
+Driver code for map_reduce running
+
+
+2020-10-12 23:03:57,888 - key-value server - CRITICAL - Starting key-value server
+2020-10-12 23:03:57,890 - key-value server - CRITICAL - You deleted the whole Cache!, starting fresh
+2020-10-12 23:04:02,934 - map-reduce master - CRITICAL - Booting up map-reduce master
+2020-10-12 23:04:02,937 - map-reduce master - CRITICAL - Starting up map-reduce with 3 mappers and 3 reducers
+2020-10-12 23:04:02,937 - map-reduce master - CRITICAL - creating status map for mappers and reducers
+2020-10-12 23:04:02,945 - map-reduce master - CRITICAL - Master dividing file file1
+2020-10-12 23:04:05,256 - map-reduce master - CRITICAL - Master dividing file file2
+2020-10-12 23:04:07,036 - map-reduce master - CRITICAL - Master dividing file file3
+2020-10-12 23:04:10,614 - map-reduce master - CRITICAL - Divided all loads successfully
+2020-10-12 23:04:10,614 - map-reduce master - CRITICAL - Booting up mappers
+2020-10-12 23:04:10,615 - map-reduce mapper - CRITICAL - Booting up map-reduce mapper with id 0
+2020-10-12 23:04:10,615 - map-reduce mapper - CRITICAL - mapper 0 intialized
+2020-10-12 23:04:10,628 - map-reduce mapper - CRITICAL - Booting up map-reduce mapper with id 1
+2020-10-12 23:04:10,628 - map-reduce mapper - CRITICAL - mapper 1 intialized
+2020-10-12 23:04:10,632 - map-reduce mapper - CRITICAL - Booting up map-reduce mapper with id 2
+2020-10-12 23:04:10,632 - map-reduce mapper - CRITICAL - mapper 2 intialized
+2020-10-12 23:04:10,633 - map-reduce master - CRITICAL - Waiting for mappers
+2020-10-12 23:04:10,632 - map-reduce mapper - CRITICAL - mapper 0 received data 257119
+2020-10-12 23:04:10,633 - map-reduce mapper - CRITICAL - mapper 1 received data 255831
+2020-10-12 23:04:10,634 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 0
+2020-10-12 23:04:10,635 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 1
+2020-10-12 23:04:10,636 - map-reduce mapper - CRITICAL - mapper 2 received data 255750
+2020-10-12 23:04:10,638 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 2
+2020-10-12 23:04:10,665 - map-reduce mapper - CRITICAL - Mapper 0 has run mapper function
+2020-10-12 23:04:10,665 - map-reduce mapper - CRITICAL - Mapper 1 has run mapper function
+2020-10-12 23:04:10,666 - map-reduce mapper - CRITICAL - Sending mapper out put for 0 to key value store
+2020-10-12 23:04:10,666 - map-reduce mapper - CRITICAL - Sending mapper out put for 1 to key value store
+2020-10-12 23:04:10,669 - map-reduce mapper - CRITICAL - Mapper 2 has run mapper function
+2020-10-12 23:04:10,670 - map-reduce mapper - CRITICAL - Sending mapper out put for 2 to key value store
+2020-10-12 23:04:15,633 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:1
+2020-10-12 23:04:15,633 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:04:20,634 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:2
+2020-10-12 23:04:20,635 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:04:25,207 - map-reduce mapper - CRITICAL - output for mapper 2 stored in key value store
+2020-10-12 23:04:25,208 - map-reduce mapper - CRITICAL - mapper 2 received data 197505
+2020-10-12 23:04:25,209 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 2
+2020-10-12 23:04:25,243 - map-reduce mapper - CRITICAL - Mapper 2 has run mapper function
+2020-10-12 23:04:25,245 - map-reduce mapper - CRITICAL - Sending mapper out put for 2 to key value store
+2020-10-12 23:04:25,326 - map-reduce mapper - CRITICAL - output for mapper 1 stored in key value store
+2020-10-12 23:04:25,327 - map-reduce mapper - CRITICAL - mapper 1 received data 194885
+2020-10-12 23:04:25,328 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 1
+2020-10-12 23:04:25,350 - map-reduce mapper - CRITICAL - output for mapper 0 stored in key value store
+2020-10-12 23:04:25,352 - map-reduce mapper - CRITICAL - mapper 0 received data 195728
+2020-10-12 23:04:25,353 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 0
+2020-10-12 23:04:25,359 - map-reduce mapper - CRITICAL - Mapper 1 has run mapper function
+2020-10-12 23:04:25,361 - map-reduce mapper - CRITICAL - Sending mapper out put for 1 to key value store
+2020-10-12 23:04:25,385 - map-reduce mapper - CRITICAL - Mapper 0 has run mapper function
+2020-10-12 23:04:25,387 - map-reduce mapper - CRITICAL - Sending mapper out put for 0 to key value store
+2020-10-12 23:04:25,636 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:3
+2020-10-12 23:04:25,637 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:04:30,640 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:4
+2020-10-12 23:04:30,640 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:04:35,642 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:5
+2020-10-12 23:04:35,643 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:04:40,645 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:6
+2020-10-12 23:04:40,646 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:04:40,807 - map-reduce mapper - CRITICAL - output for mapper 1 stored in key value store
+2020-10-12 23:04:40,810 - map-reduce mapper - CRITICAL - mapper 1 received data 405322
+2020-10-12 23:04:40,811 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 1
+2020-10-12 23:04:40,871 - map-reduce mapper - CRITICAL - Mapper 1 has run mapper function
+2020-10-12 23:04:40,874 - map-reduce mapper - CRITICAL - Sending mapper out put for 1 to key value store
+2020-10-12 23:04:40,884 - map-reduce mapper - CRITICAL - output for mapper 0 stored in key value store
+2020-10-12 23:04:40,886 - map-reduce mapper - CRITICAL - mapper 0 received data 400237
+2020-10-12 23:04:40,888 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 0
+2020-10-12 23:04:40,889 - map-reduce mapper - CRITICAL - output for mapper 2 stored in key value store
+2020-10-12 23:04:40,891 - map-reduce mapper - CRITICAL - mapper 2 received data 404088
+2020-10-12 23:04:40,893 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 2
+2020-10-12 23:04:40,943 - map-reduce mapper - CRITICAL - Mapper 0 has run mapper function
+2020-10-12 23:04:40,946 - map-reduce mapper - CRITICAL - Sending mapper out put for 0 to key value store
+2020-10-12 23:04:40,948 - map-reduce mapper - CRITICAL - Mapper 2 has run mapper function
+2020-10-12 23:04:40,952 - map-reduce mapper - CRITICAL - Sending mapper out put for 2 to key value store
+2020-10-12 23:04:45,647 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:7
+2020-10-12 23:04:45,648 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:04:50,650 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:8
+2020-10-12 23:04:50,651 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:04:55,653 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:9
+2020-10-12 23:04:55,654 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:05:00,656 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:10
+2020-10-12 23:05:00,656 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:05:05,659 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:11
+2020-10-12 23:05:05,660 - map-reduce master - CRITICAL - idle:0 assigned:3 finished:0
+2020-10-12 23:05:09,920 - map-reduce mapper - CRITICAL - output for mapper 0 stored in key value store
+2020-10-12 23:05:09,920 - map-reduce mapper - CRITICAL - mapper 0 done
+2020-10-12 23:05:10,147 - map-reduce mapper - CRITICAL - output for mapper 1 stored in key value store
+2020-10-12 23:05:10,148 - map-reduce mapper - CRITICAL - mapper 1 done
+2020-10-12 23:05:10,263 - map-reduce mapper - CRITICAL - output for mapper 2 stored in key value store
+2020-10-12 23:05:10,264 - map-reduce mapper - CRITICAL - mapper 2 done
+2020-10-12 23:05:10,663 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:12
+2020-10-12 23:05:10,664 - map-reduce master - CRITICAL - idle:0 assigned:0 finished:3
+2020-10-12 23:05:10,665 - map-reduce master - CRITICAL - Done for mappers
+2020-10-12 23:05:10,665 - map-reduce master - CRITICAL - Booting up reducers
+2020-10-12 23:05:10,668 - map-reduce reducer - CRITICAL - Booting up map-reduce reducer with id 0
+2020-10-12 23:05:10,668 - map-reduce reducer - CRITICAL - reducer 0 intialized
+2020-10-12 23:05:10,671 - map-reduce reducer - CRITICAL - Booting up map-reduce reducer with id 1
+2020-10-12 23:05:10,671 - map-reduce reducer - CRITICAL - reducer 1 intialized
+2020-10-12 23:05:10,673 - map-reduce reducer - CRITICAL - Booting up map-reduce reducer with id 2
+2020-10-12 23:05:10,674 - map-reduce reducer - CRITICAL - reducer 2 intialized
+2020-10-12 23:05:10,674 - map-reduce master - CRITICAL - Waiting for reducers
+2020-10-12 23:05:10,676 - map-reduce reducer - CRITICAL - reducer 0 received data 537736
+2020-10-12 23:05:10,678 - map-reduce reducer - CRITICAL - reducer 1 received data 583936
+2020-10-12 23:05:10,682 - map-reduce reducer - CRITICAL - reducer 2 received data 612745
+2020-10-12 23:05:10,736 - map-reduce reducer - CRITICAL - reducer 0 collected these keys data :47360
+2020-10-12 23:05:10,737 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 0
+2020-10-12 23:05:10,741 - map-reduce reducer - CRITICAL - reducer 1 collected these keys data :52032
+2020-10-12 23:05:10,742 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 1
+2020-10-12 23:05:10,747 - map-reduce reducer - CRITICAL - reducer 2 collected these keys data :55607
+2020-10-12 23:05:10,747 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 2
+2020-10-12 23:05:10,783 - map-reduce reducer - CRITICAL - Reducer 0 has run reducer function
+2020-10-12 23:05:10,784 - map-reduce reducer - CRITICAL - Sending reducer out put for 0 to key value store
+2020-10-12 23:05:10,787 - map-reduce reducer - CRITICAL - Reducer 1 has run reducer function
+2020-10-12 23:05:10,788 - map-reduce reducer - CRITICAL - Sending reducer out put for 1 to key value store
+2020-10-12 23:05:10,794 - map-reduce reducer - CRITICAL - Reducer 2 has run reducer function
+2020-10-12 23:05:10,795 - map-reduce reducer - CRITICAL - Sending reducer out put for 2 to key value store
+2020-10-12 23:05:11,987 - map-reduce reducer - CRITICAL - output for reducer 1stored in key value store
+2020-10-12 23:05:11,989 - map-reduce reducer - CRITICAL - reducer 1 received data 583789
+2020-10-12 23:05:11,992 - map-reduce reducer - CRITICAL - output for reducer 2stored in key value store
+2020-10-12 23:05:11,993 - map-reduce reducer - CRITICAL - output for reducer 0stored in key value store
+2020-10-12 23:05:11,994 - map-reduce reducer - CRITICAL - reducer 2 received data 620473
+2020-10-12 23:05:11,995 - map-reduce reducer - CRITICAL - reducer 0 received data 536218
+2020-10-12 23:05:12,025 - map-reduce reducer - CRITICAL - reducer 1 collected these keys data :52022
+2020-10-12 23:05:12,026 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 1
+2020-10-12 23:05:12,029 - map-reduce reducer - CRITICAL - reducer 0 collected these keys data :47168
+2020-10-12 23:05:12,029 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 0
+2020-10-12 23:05:12,035 - map-reduce reducer - CRITICAL - reducer 2 collected these keys data :56335
+2020-10-12 23:05:12,036 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 2
+2020-10-12 23:05:12,050 - map-reduce reducer - CRITICAL - Reducer 0 has run reducer function
+2020-10-12 23:05:12,051 - map-reduce reducer - CRITICAL - Sending reducer out put for 0 to key value store
+2020-10-12 23:05:12,051 - map-reduce reducer - CRITICAL - Reducer 1 has run reducer function
+2020-10-12 23:05:12,052 - map-reduce reducer - CRITICAL - Sending reducer out put for 1 to key value store
+2020-10-12 23:05:12,059 - map-reduce reducer - CRITICAL - Reducer 2 has run reducer function
+2020-10-12 23:05:12,060 - map-reduce reducer - CRITICAL - Sending reducer out put for 2 to key value store
+2020-10-12 23:05:13,032 - map-reduce reducer - CRITICAL - output for reducer 2stored in key value store
+2020-10-12 23:05:13,034 - map-reduce reducer - CRITICAL - reducer 2 received data 619644
+2020-10-12 23:05:13,052 - map-reduce reducer - CRITICAL - output for reducer 1stored in key value store
+2020-10-12 23:05:13,054 - map-reduce reducer - CRITICAL - reducer 1 received data 587305
+2020-10-12 23:05:13,055 - map-reduce reducer - CRITICAL - output for reducer 0stored in key value store
+2020-10-12 23:05:13,056 - map-reduce reducer - CRITICAL - reducer 0 received data 536009
+2020-10-12 23:05:13,069 - map-reduce reducer - CRITICAL - reducer 2 collected these keys data :56230
+2020-10-12 23:05:13,069 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 2
+2020-10-12 23:05:13,084 - map-reduce reducer - CRITICAL - reducer 0 collected these keys data :47203
+2020-10-12 23:05:13,084 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 0
+2020-10-12 23:05:13,089 - map-reduce reducer - CRITICAL - reducer 1 collected these keys data :52308
+2020-10-12 23:05:13,089 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 1
+2020-10-12 23:05:13,096 - map-reduce reducer - CRITICAL - Reducer 2 has run reducer function
+2020-10-12 23:05:13,096 - map-reduce reducer - CRITICAL - Sending reducer out put for 2 to key value store
+2020-10-12 23:05:13,107 - map-reduce reducer - CRITICAL - Reducer 0 has run reducer function
+2020-10-12 23:05:13,108 - map-reduce reducer - CRITICAL - Sending reducer out put for 0 to key value store
+2020-10-12 23:05:13,114 - map-reduce reducer - CRITICAL - Reducer 1 has run reducer function
+2020-10-12 23:05:13,115 - map-reduce reducer - CRITICAL - Sending reducer out put for 1 to key value store
+2020-10-12 23:05:14,128 - map-reduce reducer - CRITICAL - output for reducer 2stored in key value store
+2020-10-12 23:05:14,152 - map-reduce reducer - CRITICAL - output for reducer 0stored in key value store
+2020-10-12 23:05:14,168 - map-reduce reducer - CRITICAL - output for reducer 1stored in key value store
+2020-10-12 23:05:15,677 - map-reduce master - CRITICAL - master checking reducer health, heartbeat:1
+2020-10-12 23:05:15,679 - map-reduce master - CRITICAL - idle:0 assigned:0 finished:3
+2020-10-12 23:05:15,679 - map-reduce master - CRITICAL - Done for reducers
+2020-10-12 23:05:15,680 - map-reduce master - CRITICAL - getting final output from key-value store
+2020-10-12 23:05:15,689 - map-reduce master - CRITICAL - final answer dumped into file output.txt
+
