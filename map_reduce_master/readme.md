@@ -35,26 +35,26 @@ This file has the driver code. For testing purposes this alone will suffice to c
 3. It will also carry out one accuracy report test function if it is word count or inverted index functions (from provided options)
 
 ### Folder structure
---input_files (list of text files for testing) 
+--input_files (list of text files for testing)  <br />
 
---key_value_pair_cache (has server and client implementation for key value store)
+--key_value_pair_cache (has server and client implementation for key value store) <br />
 
---map_reduce_master
+--map_reduce_master <br />
     |--------master.py (master)
 
---mapper
-    |--------mapper.py (mapper worker)
-    |--------word_count_mapper.py (dumps word_count_mapper_serialized when run)
-    |--------word_count_mapper_serialized (serialized mapper,set in config file to use)
-    |--------inverted_index_mapper.py (dumps inverted_index_mapper_serialized when run)
-    |--------inverted_index_mapper_serialized (serialized mapper,set in config file to use)
+--mapper  <br />
+    |--------mapper.py (mapper worker)  <br />
+    |--------word_count_mapper.py (dumps word_count_mapper_serialized when run) <br />
+    |--------word_count_mapper_serialized (serialized mapper,set in config file to use) <br />
+    |--------inverted_index_mapper.py (dumps inverted_index_mapper_serialized when run) <br />
+    |--------inverted_index_mapper_serialized (serialized mapper,set in config file to use) <br /> <br />
 
---reducer
-    |--------reducer.py (reducer worker)
-    |--------word_count_reducer.py (dumps word_count_reducerr_serialized when run)
-    |--------word_count_reducer_serialized (serialized reducer,set in config file to use)
-    |--------inverted_index_reducer.py (dumps inverted_index_reducer_serialized when run)
-    |--------inverted_index_reducer_serialized (serialized reducer,set in config file to use)
+--reducer <br />
+    |--------reducer.py (reducer worker) <br />
+    |--------word_count_reducer.py (dumps word_count_reducerr_serialized when run) <br />
+    |--------word_count_reducer_serialized (serialized reducer,set in config file to use) <br />
+    |--------inverted_index_reducer.py (dumps inverted_index_reducer_serialized when run) <br />
+    |--------inverted_index_reducer_serialized (serialized reducer,set in config file to use) <br />
 # Report:
 The report is a direct section by section comparison with Googles paper for the frame work.
 ### Design:
@@ -99,23 +99,23 @@ map (k1,v1) -> list[(k2,v2)]
 reduce list(k1,v1) -> list(k2,v2)
 The values are in strings, user can parse in other types if desired.
 ### Execution Overview:
-1)Driver Program starts key value store and Master.
-2)Master connects to key value store. Stores a key for each Mapper worker and Reducer Worker with Value "idle".
-3)Master divides the input files into N keys at the key value store(one for each Mapper). This is done in round robin fashion so each file it divided into N keys.Total keys generated:No of files*No of mappers.The *Google* paper does this by M pieces of typically 16 megabytes to 64 megabytes (MB) per piece (controllable by the user via an optional parameter). In my implementation I just do it one line at a time which might be slower. Master starts its status check loop. 
-4)Mapperworker fetches all mapper_statuses from key value store. It assigns itself with an id which was set as "idle" by the master. It sets the value of this key in key value store as "assigned". The *Google* paper makes master and then workers that are assigned work by the master. There are M map tasks and R reduce tasks to assign. The master picks idle workers and assigns each one a map task or a reduce task. In my implementation, this is done automatically by workers picking who they are! 
-5)Mapper worker fetches all the keys that are meant for this id from the key value store. It then parses the contnious file into a pair of (filename, string).
-6)Mapper worker loads serialized function and runs it with the input (filename, string).
-7)Mapper worker gets output of the user map function as a list of tuples as [(k1,v1),(k2,v3)]. It then parses each tuple key as hash(key)mod No of reducers. This gives an id for reducer and the particular key value pair is assigned to this reducer.
-8)Mapper worker appends (key,value) pair to hash(key)mod(N)'s input file. This is done by sending the (key,value) pair to key value store but appending to the hash(key)mod(N) reducer's input file.
-9)After mapper has dumped the whole list, it updated the mapper_status of its id to "finished."
-10)During this master was looping while asking for the status of each mapper from the key value store every fixed seconds. Master decides when its been too long for a mapper to stay at 'assigned'. If that happens, master interpretes that mapper worker died and it boots a new mapper worker while setting the status as "idle".
-11)Once all mappers are set to "finished", the master moves to the reducer phase.It boots up N reducer workers.
-12)Each reducer worker does the same as mapper worker. It gets all reducer statuses and assigns itself an id from the key value store.
-13)Once the reducer has an id, it fetches all the keys meant for itself from key value store(there shd be one per each mapper).
-14)The reducer parses this into a list of tuples as [(k1,v1),(k2,v2)]. This list is provided to the serialized user reduce function.
-15)The reducer provides back with a list of words. The list of tuples [(k1,v1),(k2,v2)] is sent by the reducer worker to the key value store to store as output(theres one for each reducer). 
-16)The master does the same polling in background for all reducers. when it feels that reducers have stayed "assigned" for too long,it sets the reducer status as idle and a new reducer worker is booted to take up this reducer id's work. 
-17)When master detects all reducers are "finished", it fetches individual outputs from the key value store and stores it at user input(through config file) file. The output is dumped in "key value" per line manner. Its human readable so can be opened by the user to read results from.
+1)Driver Program starts key value store and Master. <br />
+2)Master connects to key value store. Stores a key for each Mapper worker and Reducer Worker with Value "idle". <br />
+3)Master divides the input files into N keys at the key value store(one for each Mapper). This is done in round robin fashion so each file it divided into N keys.Total keys generated:No of files*No of mappers.The *Google* paper does this by M pieces of typically 16 megabytes to 64 megabytes (MB) per piece (controllable by the user via an optional parameter). In my implementation I just do it one line at a time which might be slower. Master starts its status check loop.  <br />
+4)Mapperworker fetches all mapper_statuses from key value store. It assigns itself with an id which was set as "idle" by the master. It sets the value of this key in key value store as "assigned". The *Google* paper makes master and then workers that are assigned work by the master. There are M map tasks and R reduce tasks to assign. The master picks idle workers and assigns each one a map task or a reduce task. In my implementation, this is done automatically by workers picking who they are!  <br />
+5)Mapper worker fetches all the keys that are meant for this id from the key value store. It then parses the contnious file into a pair of (filename, string). <br />
+6)Mapper worker loads serialized function and runs it with the input (filename, string). <br />
+7)Mapper worker gets output of the user map function as a list of tuples as [(k1,v1),(k2,v3)]. It then parses each tuple key as hash(key)mod No of reducers. This gives an id for reducer and the particular key value pair is assigned to this reducer. <br />
+8)Mapper worker appends (key,value) pair to hash(key)mod(N)'s input file. This is done by sending the (key,value) pair to key value store but appending to the hash(key)mod(N) reducer's input file. <br />
+9)After mapper has dumped the whole list, it updated the mapper_status of its id to "finished." <br />
+10)During this master was looping while asking for the status of each mapper from the key value store every fixed seconds. Master decides when its been too long for a mapper to stay at 'assigned'. If that happens, master interpretes that mapper worker died and it boots a new mapper worker while setting the status as "idle". <br />
+11)Once all mappers are set to "finished", the master moves to the reducer phase.It boots up N reducer workers. <br />
+12)Each reducer worker does the same as mapper worker. It gets all reducer statuses and assigns itself an id from the key value store. <br />
+13)Once the reducer has an id, it fetches all the keys meant for itself from key value store(there shd be one per each mapper). <br />
+14)The reducer parses this into a list of tuples as [(k1,v1),(k2,v2)]. This list is provided to the serialized user reduce function. <br />
+15)The reducer provides back with a list of words. The list of tuples [(k1,v1),(k2,v2)] is sent by the reducer worker to the key value store to store as output(theres one for each reducer).  <br />
+16)The master does the same polling in background for all reducers. when it feels that reducers have stayed "assigned" for too long,it sets the reducer status as idle and a new reducer worker is booted to take up this reducer id's work.  <br />
+17)When master detects all reducers are "finished", it fetches individual outputs from the key value store and stores it at user input(through config file) file. The output is dumped in "key value" per line manner. Its human readable so can be opened by the user to read results from. <br />
 
 ## Fault Tolerance
 I have implemented fault tolerance as follows:
