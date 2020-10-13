@@ -36,8 +36,8 @@ class map_reduce:
 
     def boot_mappers(self):
         self.LOG.log(50, 'Booting up mappers')
-        for mapper_name, mapper_port in self.config['mapper_ports'].items():
-            m = mapper(mapper_name, mapper_port)
+        for i in range(int(self.config['app_config']['NumberOfMappers'])):
+            m = mapper('', '') #for ip and port number in future
             # m.get_mapper_data()
             self.mapper_pool.append(self.executor.submit(
                 m.get_mapper_data))
@@ -50,8 +50,8 @@ class map_reduce:
     def boot_reducers(self):
         id = 0
         self.LOG.log(50, 'Booting up reducers')
-        for reducer_name, reducer_port in self.config['reducer_ports'].items():
-            r = reducer(reducer_name, reducer_port)
+        for i in range(int(self.config['app_config']['NumberOfReducers'])):
+            r = reducer('', '') #for ip and port numbers in future
             # r.get_reducer_data()
             self.reducer_pool.append(self.executor.submit(
                 r.get_reducer_data))
@@ -95,11 +95,11 @@ class map_reduce:
                     break
                 for running_mapper in status_dict.keys():
                     if status_dict[running_mapper] == 'assigned':
-                        if total_dict['finished'] > int(self.config['app_config']['NumberOfMappers'])//2 and no_of_loops >= 3:
+                        if total_dict['finished'] > int(self.config['app_config']['NumberOfMappers'])//2 and no_of_loops >= 18:
                             self.master_client.set_key(running_mapper, 'idle')
                             self.LOG.log(
                                 50, 'master spawned a new mapper with id '+str(running_mapper))
-                        if no_of_loops >= 5:
+                        if no_of_loops >= 20:
                             self.LOG.log(
                                 50, 'master spawned a new mapper with id '+str(running_mapper))
                             self.master_client.set_key(running_mapper, 'idle')
@@ -134,11 +134,11 @@ class map_reduce:
                     break
                 for running_reducer in status_dict.keys():
                     if status_dict[running_reducer] == 'assigned':
-                        if total_dict['finished'] > int(self.config['app_config']['NumberOfReducers'])//2 and no_of_loops >= 3:
+                        if total_dict['finished'] > int(self.config['app_config']['NumberOfReducers'])//2 and no_of_loops >= 8:
                             self.LOG.log(
                                 50, 'master spawned a new reducer with id '+str(running_reducer))
                             self.master_client.set_key(running_reducer, 'idle')
-                        if no_of_loops >= 5:
+                        if no_of_loops >= 10:
                             self.master_client.set_key(running_reducer, 'idle')
                             self.LOG.log(
                                 50, 'master spawned a new reducer with id '+str(running_reducer))

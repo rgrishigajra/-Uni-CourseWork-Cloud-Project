@@ -40,7 +40,7 @@ def test_output_word_count():
         else:
             wrong_words += 1
     print("List of unique words:"+str(len(freq_map)),
-          "Map Reduce found:"+str(len(output_freq_map)))
+          "Map Reduce found correctly:"+str(len(output_freq_map)))
     print("Lost percentage of words:"+str(100-len(output_freq_map)*100/len(freq_map)))
     return True
 
@@ -58,8 +58,8 @@ if __name__ == "__main__":
     server_process=executor.submit(key_value_server.server_loop)
     master_map_reduce=map_reduce()
     master_map_reduce.run_map_reduce()
-    if config['app_config']['MapperCodeSerialized'] == 'mapper/word_count_mapper_serialized':
+    if config['app_config']['MapperCodeSerialized'] == 'mapper/word_count_mapper_serialized' and config['app_config']['ConductTest'] == "True":
         test_output_word_count()
-    # if config['app_config']['MapperCodeSerialized']=='inverted_index_reducer_serialized':
+    # if config['app_config']['MapperCodeSerialized']=='inverted_index_reducer_serialized' and config['app_config']['ConductTest'] == "True":
         # test_output_inverted_index()
     None
