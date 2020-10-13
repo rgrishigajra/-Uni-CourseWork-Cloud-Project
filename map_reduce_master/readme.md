@@ -35,16 +35,20 @@ This file has the driver code. For testing purposes this alone will suffice to c
 3. It will also carry out one accuracy report test function if it is word count or inverted index functions (from provided options)
 
 ### Folder structure
---input_files (list of text files for testing)
+--input_files (list of text files for testing) 
+
 --key_value_pair_cache (has server and client implementation for key value store)
+
 --map_reduce_master
     |--------master.py (master)
+
 --mapper
     |--------mapper.py (mapper worker)
     |--------word_count_mapper.py (dumps word_count_mapper_serialized when run)
     |--------word_count_mapper_serialized (serialized mapper,set in config file to use)
     |--------inverted_index_mapper.py (dumps inverted_index_mapper_serialized when run)
     |--------inverted_index_mapper_serialized (serialized mapper,set in config file to use)
+
 --reducer
     |--------reducer.py (reducer worker)
     |--------word_count_reducer.py (dumps word_count_reducerr_serialized when run)
