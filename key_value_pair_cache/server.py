@@ -227,8 +227,9 @@ class server:
         except (FileExistsError, FileNotFoundError):
             None
         server_port = port_num
+        server_name = gethostbyname()
         self.server_socket = socket(AF_INET, SOCK_STREAM)
-        self.server_socket.bind(("127.0.0.1", server_port))
+        self.server_socket.bind((server_name, server_port))
         self.LOG.log(20, "server connected at ip:%s port:%s",
                      str(self.server_socket.getsockname()[0]), str(self.server_socket.getsockname()[1]))
         self.server_socket.listen(1)
