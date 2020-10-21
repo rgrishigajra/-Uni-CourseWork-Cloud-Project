@@ -56,12 +56,13 @@ class reducer:
                     if len(words) == 2:
                         input_list.append((words[0], words[1]))
                 self.LOG.log(50, "reducer "+str(self.reducer_id) +
-                            " collected these keys data :"+str(len(input_list)))
+                             " collected these keys data :"+str(len(input_list)))
                 # runs serial reducer script
                 reducer_output = self.run_serialized_reducer(input_list)
                 self.send_reducer_output(reducer_output)
-            if random.randrange(int(self.config['app_config']['NumberOfReducers'])+1) ==int(self.config['app_config']['NumberOfReducers']) and self.config['app_config']['TestReducerFail'] == "True":
-                self.LOG.log(30,"Creating an exception in reducer "+str(self.reducer_id)+" for testing")
+            if random.randrange(int(self.config['app_config']['NumberOfReducers'])+1) == int(self.config['app_config']['NumberOfReducers']) and self.config['app_config']['TestReducerFail'] == "True":
+                self.LOG.log(30, "Creating an exception in reducer " +
+                             str(self.reducer_id)+" for testing")
                 raise Exception
             self.reducer_client.set_key(
                 'reducer_status'+str(self.reducer_id), 'finished')
@@ -84,8 +85,8 @@ class reducer:
     def __init__(self, reducer_name, reducer_port):
         self.reducer_port = reducer_port
         self.reducer_name = reducer_name
-        self.reducer_client = client(
-            int(self.config['app_config']['KeyValueServerPort']))
+        self.reducer_client = client(str(self.config['app_config']['KeyValueServerIP']),
+                                     int(self.config['app_config']['KeyValueServerPort']))
         self.reducer_id = self.get_reducer_id()
         self.LOG.log(50, "Booting up map-reduce reducer with id " +
                      str(self.reducer_id))

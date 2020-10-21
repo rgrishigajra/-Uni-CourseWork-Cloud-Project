@@ -86,7 +86,7 @@ class mapper:
     def __init__(self, mapper_name, mapper_port):
         self.mapper_port = mapper_port
         self.mapper_name = mapper_name
-        self.mapper_client = client(
+        self.mapper_client = client( str(self.config['app_config']['KeyValueServerIP']),
             int(self.config['app_config']['KeyValueServerPort']))
         self.mapper_id = self.get_mapper_id()
         self.LOG.log(50, "Booting up map-reduce mapper with id " +

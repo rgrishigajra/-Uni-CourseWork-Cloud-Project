@@ -8,6 +8,7 @@ import pickle
 import concurrent.futures
 from reducer.reducer import reducer
 from collections import defaultdict
+import subprocess
 
 
 class map_reduce:
@@ -37,24 +38,26 @@ class map_reduce:
     def boot_mappers(self):
         self.LOG.log(50, 'Booting up mappers')
         for i in range(int(self.config['app_config']['NumberOfMappers'])):
-            m = mapper('', '') #for ip and port number in future
-            # m.get_mapper_data()
-            self.mapper_pool.append(self.executor.submit(
-                m.get_mapper_data))
+            subprocess.run("python3 mapper_init.py",
+                           shell=True, check=True)
+            # m = mapper('', '')  # for ip and port number in future
+            # # m.get_mapper_data()
+            # self.mapper_pool.append(self.executor.submit(
+            #     m.get_mapper_data))
         self.LOG.log(50, 'Waiting for mappers')
         # concurrent.futures.wait(self.mapper_pool)
-
-        # break
         return True
 
     def boot_reducers(self):
         id = 0
         self.LOG.log(50, 'Booting up reducers')
         for i in range(int(self.config['app_config']['NumberOfReducers'])):
-            r = reducer('', '') #for ip and port numbers in future
-            # r.get_reducer_data()
-            self.reducer_pool.append(self.executor.submit(
-                r.get_reducer_data))
+            subprocess.run("python3 reducer_init.py",
+                           shell=True, check=True)
+            # r = reducer('', '')  # for ip and port numbers in future
+            # # r.get_reducer_data()
+            # self.reducer_pool.append(self.executor.submit(
+            #     r.get_reducer_data))
             # break
         self.LOG.log(50, 'Waiting for reducers')
         # concurrent.futures.wait(self.reducer_pool)
@@ -174,11 +177,12 @@ class map_reduce:
 
     def __init__(self):
         self.LOG.log(50, "Booting up map-reduce master")
-        self.master_client = client(
-            int(self.config['app_config']['KeyValueServerPort']))
+        self.master_client = client(str(self.config['app_config']['KeyValueServerIP']), int(
+            self.config['app_config']['KeyValueServerPort']))
         self.mapper_pool = []
         self.reducer_pool = []
         self.executor = concurrent.futures.ProcessPoolExecutor()
+        self.master_client.delete_all()
         # while True:
         #     if not self.master_client.ping_server():
         #         self.LOG.log(50, 'key-value is store offline')
