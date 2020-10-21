@@ -31,7 +31,7 @@ class server:
         return "ONLINE\r\n"
         # deletes the entire map(even the persistent version, along with individual value files)
 
-    def delete_full_cache(self):
+    def delete_full_cache(self, message_args):
         self.LOG.log(50, "You deleted the whole Cache!, starting fresh")
         try:
             shutil.rmtree(self.values_path)
@@ -39,7 +39,7 @@ class server:
             os.remove(self.map_file_name)
         except (FileExistsError, FileNotFoundError):
             None
-        return
+        return "DELETED\r\n"
 
     def search_keys_by_value(self, message_args):
         self.LOG.log(10, "searching keys with "+message_args[1]+" id")
@@ -76,7 +76,7 @@ class server:
                     return True
                 except EOFError:
                     self.LOG.log(50, "map file had EOF error, starting fresh!")
-                    self.delete_full_cache()
+                    self.delete_full_cache('')
         self.key_value = {}
         open(self.map_file_name, 'x')
         self.LOG.log(50, "New map was loaded from disc!")
@@ -228,7 +228,7 @@ class server:
             None
         server_port = port_num
         self.server_socket = socket(AF_INET, SOCK_STREAM)
-        self.server_socket.bind(("", server_port))
+        self.server_socket.bind(("127.0.0.1", server_port))
         self.LOG.log(20, "server connected at ip:%s port:%s",
                      str(self.server_socket.getsockname()[0]), str(self.server_socket.getsockname()[1]))
         self.server_socket.listen(1)
@@ -258,9 +258,3 @@ class server:
 
 
 # driver code to run server independently on a port number from config file
-if __name__ == "__main__":
-    server_instance = server()
-    config = configparser.ConfigParser()
-    port_num = int(config['app_config']['KeyValueServerPort'])
-    server_instance.port_setup(port_num)
-    server_instance.server_loop()

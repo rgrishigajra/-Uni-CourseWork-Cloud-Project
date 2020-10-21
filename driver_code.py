@@ -1,4 +1,5 @@
 from key_value_pair_cache.server import server
+import subprocess
 from key_value_pair_cache.client import client
 import key_value_pair_cache.helper_functions.log_helper as log_helper
 import configparser
@@ -41,7 +42,8 @@ def test_output_word_count():
             wrong_words += 1
     print("List of unique words:"+str(len(freq_map)),
           "Map Reduce found correctly:"+str(len(output_freq_map)))
-    print("Lost percentage of words:"+str(100-len(output_freq_map)*100/len(freq_map)))
+    print("Lost percentage of words:" +
+          str(100-len(output_freq_map)*100/len(freq_map)))
     return True
 
 
@@ -53,13 +55,17 @@ if __name__ == "__main__":
     executor=concurrent.futures.ProcessPoolExecutor()
     key_value_server.port_setup(
         int(config['app_config']['KeyValueServerPort']))
-    key_value_server.delete_full_cache()
+    key_value_server.delete_full_cache('')
     time.sleep(5)
     server_process=executor.submit(key_value_server.server_loop)
-    master_map_reduce=map_reduce()
+    # subprocess.run("python3 server_init.py",
+    #                shell=True, check=True)
+    # subprocess.run("python3 master_init.py",
+    #                shell=True, check=True)
+    master_map_reduce = map_reduce()
     master_map_reduce.run_map_reduce()
-    if config['app_config']['MapperCodeSerialized'] == 'mapper/word_count_mapper_serialized' and config['app_config']['ConductTest'] == "True":
-        test_output_word_count()
+    # if config['app_config']['MapperCodeSerialized'] == 'mapper/word_count_mapper_serialized' and config['app_config']['ConductTest'] == "True":
+    #     test_output_word_count()
     # if config['app_config']['MapperCodeSerialized']=='inverted_index_reducer_serialized' and config['app_config']['ConductTest'] == "True":
-        # test_output_inverted_index()
+    # test_output_inverted_index()
     None

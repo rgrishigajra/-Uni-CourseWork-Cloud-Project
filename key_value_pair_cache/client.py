@@ -10,6 +10,17 @@ class client:
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
     LOG = log_helper._logger("client")
 
+    def delete_all(self):
+        try:
+            client_message = 'delete all \r\n'
+            self.client_socket.send(client_message.encode())
+            self.LOG.log(20, 'Client sent a get request!')
+            server_output = self.client_socket.recv(4096)
+            return server_output.decode()
+        except ConnectionRefusedError as e:
+            self.LOG.exception(e)
+        return
+
     def append_key(self, key, value):
         try:
             client_message = 'append ' + key + ' ' + \
@@ -61,7 +72,7 @@ class client:
                 return False
             value_len = len(decoded_msg.split(' \r\n')[1])
             value_len_given_by_server = int(
-                decoded_msg.split(' \r\n')[0].split(' ')[2]) +len(' \r\nEND\r\n')
+                decoded_msg.split(' \r\n')[0].split(' ')[2]) + len(' \r\nEND\r\n')
             while value_len_given_by_server > value_len:
                 if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
                     break
@@ -130,10 +141,10 @@ class client:
         self.client_socket.close()
         return True
 
-    def __init__(self, port_num):
+    def __init__(self, ip, port_num):
         while True:
             try:
-                server_name = ""
+                server_name = ip
                 server_port = port_num
                 self.client_socket = socket(AF_INET, SOCK_STREAM)
                 self.client_socket.connect((server_name, server_port))
