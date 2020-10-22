@@ -9,6 +9,9 @@ import types
 import re
 from key_value_pair_cache.helper_functions.hash_fnv1a import fnv1a_32
 import random
+import urllib.request
+import threading
+import time
 
 
 class mapper:
@@ -63,32 +66,46 @@ class mapper:
                 # gets a list of (key,value) pairs, storing it in kay value store for each reducer
                 self.send_mapper_output(mapper_output)
             if random.randrange(int(self.config['app_config']['NumberOfMappers'])+1) == int(self.config['app_config']['NumberOfMappers']) and self.config['app_config']['TestMapperFail'] == "True":
-                self.LOG.log(30,"Creating an exception in mapper "+str(self.mapper_id)+" for testing")
+                self.LOG.log(30, "Creating an exception in mapper " +
+                             str(self.mapper_id)+" for testing")
                 raise Exception
+            self.finished_checker = False
             self.mapper_client.set_key(
                 'mapper_status'+str(self.mapper_id), 'finished')
             self.LOG.log(50, 'mapper '+str(self.mapper_id)+" done")
             return True
         except Exception as e:
             self.LOG.log(30, "Mapper "+str(self.mapper_id)+" broke down")
+            self.LOG.log(30, e)
             return False
 
     def get_mapper_id(self):
-        keys = self.mapper_client.get_keys('mapper_status')
-        for key in keys:
-            val = self.mapper_client.get_key(key)
-            if val.split(' \r\n')[1] == 'idle':
-                id = val.split(' \r\n')[0].split()[1][len('mapper_status'):]
-                self.mapper_client.set_key('mapper_status'+str(id), 'assigned')
-                return int(id)
-        return 99999
+        # keys = self.mapper_client.get_keys('mapper_status')
+        req = urllib.request.Request(
+            'http://metadata.google.internal/computeMetadata/v1/instance/hostname', headers={"Metadata-Flavor": "Google"})
+        host_name = urllib.request.urlopen(req).read().decode().split('.')
+        # host_name = ['mapper0', 'c', 'rishabh-gajra', 'internal']
+        id = host_name[0][len('mapper'):]
+        self.mapper_client.set_key('mapper_status'+str(id), 'assigned')
+        return int(id)
+
+    def send_heartbeat(self):
+        while self.finished_checker:
+            self.mapper_client.set_key('mapper_status'+str(id), 'assigned')
+            time.sleep(7)
+        return True
 
     def __init__(self, mapper_name, mapper_port):
+        self.finished_checker = True
         self.mapper_port = mapper_port
         self.mapper_name = mapper_name
-        self.mapper_client = client( str(self.config['app_config']['KeyValueServerIP']),
-            int(self.config['app_config']['KeyValueServerPort']))
+        self.mapper_client = client(str(self.config['app_config']['KeyValueServerIP']),
+                                    int(self.config['app_config']['KeyValueServerPort']))
         self.mapper_id = self.get_mapper_id()
+        heartbeat_thread = threading.Thread(
+            target=self.send_heartbeat, args=())
+        heartbeat_thread.start()
+        # self.send_heartbeat()
         self.LOG.log(50, "Booting up map-reduce mapper with id " +
                      str(self.mapper_id))
 

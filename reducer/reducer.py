@@ -9,6 +9,9 @@ import types
 import re
 from key_value_pair_cache.helper_functions.hash_fnv1a import fnv1a_32
 import random
+import urllib.request
+import threading
+import time
 
 
 class reducer:
@@ -64,6 +67,7 @@ class reducer:
                 self.LOG.log(30, "Creating an exception in reducer " +
                              str(self.reducer_id)+" for testing")
                 raise Exception
+            self.finished_checker = False
             self.reducer_client.set_key(
                 'reducer_status'+str(self.reducer_id), 'finished')
             return True
@@ -72,22 +76,36 @@ class reducer:
             return False
 
     def get_reducer_id(self):
-        keys = self.reducer_client.get_keys('reducer_status')
-        for key in keys:
-            val = self.reducer_client.get_key(key)
-            if val.split(' \r\n')[1] == 'idle':
-                id = val.split(' \r\n')[0].split()[1][len('reducer_status'):]
-                self.reducer_client.set_key(
-                    'reducer_status'+str(id), 'assigned')
-                return int(id)
-        return 99999
+        # keys = self.reducer_client.get_keys('reducer_status')
+        # for key in keys:
+        #     val = self.reducer_client.get_key(key)
+        #     if val.split(' \r\n')[1] == 'idle':
+        #         id = val.split(' \r\n')[0].split()[1][len('reducer_status'):]
+        req = urllib.request.Request(
+            'http://metadata.google.internal/computeMetadata/v1/instance/hostname', headers={"Metadata-Flavor": "Google"})
+        host_name = urllib.request.urlopen(req).read().decode().split('.')
+        # host_name = ['reducer0', 'c', 'rishabh-gajra', 'internal']
+        id = host_name[0][len('reducer'):]
+        self.reducer_client.set_key(
+            'reducer_status'+str(id), 'assigned')
+        return int(id)
+
+    def send_heartbeat(self):
+        while self.finished_checker:
+            self.reducer_client.set_key('reducer_status'+str(id), 'assigned')
+            time.sleep(7)
+        return True
 
     def __init__(self, reducer_name, reducer_port):
+        self.finished_checker = True
         self.reducer_port = reducer_port
         self.reducer_name = reducer_name
         self.reducer_client = client(str(self.config['app_config']['KeyValueServerIP']),
                                      int(self.config['app_config']['KeyValueServerPort']))
         self.reducer_id = self.get_reducer_id()
+        heartbeat_thread = threading.Thread(
+            target=self.send_heartbeat, args=())
+        heartbeat_thread.start()
         self.LOG.log(50, "Booting up map-reduce reducer with id " +
                      str(self.reducer_id))
 
