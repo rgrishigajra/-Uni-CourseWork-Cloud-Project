@@ -21,29 +21,37 @@ class reducer:
     LOG = log_helper._logger("map-reduce reducer")
 
     def send_reducer_output(self, reducer_output):
-        self.LOG.log(50, 'Sending reducer out put for ' +
-                     str(self.reducer_id)+" to key value store")
-        msg_key = 'reducer_output' + str(self.reducer_id)
-        for list_item in reducer_output:
-            msg_val = str(list_item[0]+" "+str(list_item[1])+"\n")
-            self.reducer_client.append_key(msg_key, msg_val)
-        self.LOG.log(50, 'output for reducer ' +
-                     str(self.reducer_id) + 'stored in key value store')
-        return True
+        try:
+            self.LOG.log(50, 'Sending reducer out put for ' +
+                         str(self.reducer_id)+" to key value store")
+            msg_key = 'reducer_output' + str(self.reducer_id)
+            for list_item in reducer_output:
+                msg_val = str(list_item[0]+" "+str(list_item[1])+"\n")
+                self.reducer_client.append_key(msg_key, msg_val)
+            self.LOG.log(50, 'output for reducer ' +
+                         str(self.reducer_id) + 'stored in key value store')
+            return True
+        except Exception as e:
+            self.LOG.log(30, "Exception while running send_reducer_output")
+            print(e, sys.exc_info())
 
     def run_serialized_reducer(self, input_list):
-        self.LOG.log(
-            50, 'Running supplied reducer on worker '+str(self.reducer_id))
-        # with open(self.config['app_config']['ReducerCodeSerialized'], 'rb') as fd:
-        #     code_string = fd.read()
-        #     code = marshal.loads(code_string)
-        #     user_defined_reduce_function = types.FunctionType(
-        #         code, globals(), "user_defined_reducer_function"+str(self.reducer_id))
-        reducer_output = word_count_reducer(input_list)
-        # reducer_output = user_defined_reduce_function(input_list)
-        self.LOG.log(50, 'Reducer '+str(self.reducer_id) +
-                     " has run reducer function")
-        return reducer_output
+        try:
+            self.LOG.log(
+                50, 'Running supplied reducer on worker '+str(self.reducer_id))
+            # with open(self.config['app_config']['ReducerCodeSerialized'], 'rb') as fd:
+            #     code_string = fd.read()
+            #     code = marshal.loads(code_string)
+            #     user_defined_reduce_function = types.FunctionType(
+            #         code, globals(), "user_defined_reducer_function"+str(self.reducer_id))
+            reducer_output = word_count_reducer(input_list)
+            # reducer_output = user_defined_reduce_function(input_list)
+            self.LOG.log(50, 'Reducer '+str(self.reducer_id) +
+                         " has run reducer function")
+            return reducer_output
+        except Exception as e:
+            self.LOG.log(30, "Exception while running run_serialized_reducer")
+            print(e, sys.exc_info())
 
     def get_reducer_data(self):
         try:
@@ -74,7 +82,9 @@ class reducer:
                 'reducer_status'+str(self.reducer_id), 'finished')
             return True
         except Exception as e:
-            self.LOG.log(30, "Reducer "+str(self.reducer_id)+" broke down")
+            self.LOG.log(30, "Exception while running get_reducer_data")
+            print(e, sys.exc_info())
+            self.LOG.log(50, "Reducer "+str(self.reducer_id)+" broke down")
             return False
 
     def get_reducer_id(self):
@@ -99,6 +109,13 @@ class reducer:
             time.sleep(7)
         return True
 
+    def reducer_clean_files(self):
+        self.LOG.loggger(
+            50, 'Cleaning previous files for reducer %d' % (self.mapper_id))
+        msg_key = 'reducer_output' + str(self.reducer_id)
+        self.reducer_client.clean_file_by_line(msg_key)
+        return True
+
     def __init__(self, reducer_name, reducer_port):
         self.finished_checker = True
         self.reducer_port = reducer_port
@@ -107,8 +124,9 @@ class reducer:
                                      int(self.config['app_config']['KeyValueServerPort']))
         self.reducer_id = self.get_reducer_id()
         heartbeat_thread = threading.Thread(
-            target=self.send_heartbeat, args=())
+            target=self.send_heartbeat, args=(), daemon=True)
         heartbeat_thread.start()
+        self.reducer_clean_files()
         self.LOG.log(50, "Booting up map-reduce reducer with id " +
                      str(self.reducer_id))
 

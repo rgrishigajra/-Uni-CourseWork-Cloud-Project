@@ -21,7 +21,8 @@ class server:
         "ping": "check_status",
         "append": "append_key_value",
         "searchid": 'search_keys_by_value',
-        "getlines": "get_lines_keys_value"
+        "getlines": "get_lines_keys_value",
+        "clean": "clean_file_by_line"
     }
     LOG = log_helper._logger("key-value server")
     key_value = {}
@@ -37,6 +38,8 @@ class server:
             shutil.rmtree(self.values_path)
             os.mkdir(self.values_path)
             os.remove(self.map_file_name)
+            self.key_value = {}
+            self.file_value = {}
         except (FileExistsError, FileNotFoundError):
             None
         return "DELETED\r\n"
@@ -58,7 +61,7 @@ class server:
         map_file_lock.acquire()
         fd = os.open(self.map_file_name, os.O_RDWR | os.O_CREAT)
         fd_obj = os.fdopen(fd, 'wb')
-        pickle.dump(self.key_value, fd_obj, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(self.key_value, fd_obj, protocol=0)
         fd_obj.close()
         map_file_lock.release()
         self.LOG.log(10, key[:10]+"... key added to map and dumped to disc!")
@@ -88,7 +91,7 @@ class server:
         fd = os.open(os.path.join(self.values_path, file_name),
                      os.O_RDWR | os.O_CREAT)
         fd_obj = os.fdopen(fd, 'wb')
-        pickle.dump(data_block, fd_obj, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(data_block, fd_obj, protocol=0)
         fd_obj.close()
         self.LOG.log(10, file_name[:10]+"... file was dumped to disc!")
         return True
@@ -112,7 +115,7 @@ class server:
                     self.key_value[message_args[1]], message_args[3].replace('\r\n', ''))
             else:  # if new key is to be inserted
                 # using a fast hashing function to create a suitable unique file name
-                file_name = str(fnv1a_32(message_args[1]))
+                file_name = str((message_args[1]))
                 self.add_key_to_map(file_name, message_args[1])
                 self.dump_to_file(
                     file_name, message_args[3].replace('\r\n', ''))
@@ -121,6 +124,18 @@ class server:
             self.LOG.exception('exception while set()', e)
             self.LOG.log(10, e, sys.exc_info())
             return "NOT-STORED\r\n"
+
+    def clean_file_by_line(self, message_args):
+        file_name = str((message_args[1]))
+        try:
+            with open(os.path.join(self.values_path, file_name), "w") as doc:
+                self.LOG.log(50, 'cleaned file %s' % (file_name))
+        except Exception:
+            self.LOG.log(50, "exception while cleaning")
+            os.remove(os.path.join(self.values_path, file_name))
+            with open(os.path.join(self.values_path, file_name), "x") as doc:
+                self.LOG.log(50, 'created file %s' % (file_name))
+        return "DELETED\r\n"
 
     def append_key_value(self, message_args):
         self.LOG.log(20, "client fired an append query!")
@@ -145,7 +160,7 @@ class server:
             return "STORED\r\n"
         except Exception as e:
             self.LOG.exception('exception while append()', e)
-            self.LOG.log(10, e, sys.exc_info())
+            self.LOG.log(50, e, sys.exc_info())
             return "NOT-STORED\r\n"
 
 # Function to get the value for a key from persistent store
@@ -190,7 +205,7 @@ class server:
             client_message = connection_socket.recv(4096)
             if not client_message:
                 self.LOG.log(
-                    20, "client closed connection at ip:%s port:%s", addr[0], addr[1])
+                    50, "client closed connection at ip:%s port:%s", addr[0], addr[1])
                 return
             self.LOG.log(20, "client message received!")
             self.LOG.log(10, client_message[:30])
@@ -230,10 +245,10 @@ class server:
         server_name = gethostname()
         self.server_socket = socket(AF_INET, SOCK_STREAM)
         self.server_socket.bind((server_name, server_port))
-        self.LOG.log(20, "server connected at ip:%s port:%s",
+        self.LOG.log(50, "server connected at ip:%s port:%s",
                      str(self.server_socket.getsockname()[0]), str(self.server_socket.getsockname()[1]))
         self.server_socket.listen(1)
-        self.LOG.log(20, "server is ready to receive")
+        self.LOG.log(50, "server is ready to receive")
         return self.server_socket.getsockname()[1]
 
 # This starts the server loop where it will listen on the port number and initiate communications with clients.
@@ -241,7 +256,7 @@ class server:
         try:
             while True:
                 connection_socket, addr = self.server_socket.accept()
-                self.LOG.log(20, "client connected at ip:%s port:%s",
+                self.LOG.log(50, "client connected at ip:%s port:%s",
                              addr[0], addr[1])
                 process_thread = threading.Thread(
                     target=self.process, args=(connection_socket, addr))
@@ -254,7 +269,7 @@ class server:
                 os._exit(0)
         except Exception as e:
             self.LOG.exception(e)
-            self.LOG.log(10, e, sys.exc_info())
+            self.LOG.log(50, e, sys.exc_info())
             raise e
 
 

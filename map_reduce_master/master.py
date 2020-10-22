@@ -82,9 +82,7 @@ class map_reduce:
             for key in keys:
                 val = self.master_client.get_key(key)
                 print(key, val, 'keyval')
-                print(status_dict[key], val.split(' \r\n')[1])
                 status_dict[key] = val.split(' \r\n')[1]
-                print(total_dict[val.split(' \r\n')[1]])
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
@@ -147,13 +145,10 @@ class map_reduce:
             print('keys', keys)
             for key in keys:
                 val = self.master_client.get_key(key)
-                print('keyval', key, val)
-                print(status_dict[key], val.split(' \r\n')[1])
                 status_dict[key] = val.split(' \r\n')[1]
-                print(total_dict[val.split(' \r\n')[1]])
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
-                                str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
+                         str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
             if total_dict['finished'] == int(self.config['app_config']['NumberOfReducers']):
                 break
                 # for running_reducer in status_dict.keys():
@@ -202,10 +197,10 @@ class map_reduce:
         self.divide_loads()
         self.boot_mappers()
         self.moniter_mappers()
-        # self.delete_mappers()
+        self.delete_mappers()
         self.boot_reducers()
         self.moniter_reducers()
-        # self.delete_reducers()
+        self.delete_reducers()
         self.get_output()
         return True
 

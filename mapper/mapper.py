@@ -21,32 +21,41 @@ class mapper:
     LOG = log_helper._logger("map-reduce mapper")
 
     def send_mapper_output(self, mapper_output):
-        self.LOG.log(50, 'Sending mapper out put for ' +
-                     str(self.mapper_id)+" to key value store")
-        for list_item in mapper_output:
-            # hashing to assign to a reducer
-            reducer_id = int(fnv1a_32(list_item[0])) % int(
-                (self.config['app_config']['NumberOfReducers']))
-            msg_key = "reducer"+str(reducer_id)+"mapper"+str(self.mapper_id)
-            msg_val = str(list_item[0]+" "+str(list_item[1])+"\n")
-            self.mapper_client.append_key(msg_key, msg_val)
-        self.LOG.log(50, 'output for mapper ' +
-                     str(self.mapper_id) + ' stored in key value store')
-        return True
+        try:
+            self.LOG.log(50, 'Sending mapper out put for ' +
+                         str(self.mapper_id)+" to key value store")
+            for list_item in mapper_output:
+                # hashing to assign to a reducer
+                reducer_id = int(fnv1a_32(list_item[0])) % int(
+                    (self.config['app_config']['NumberOfReducers']))
+                msg_key = "reducer"+str(reducer_id) + \
+                    "mapper"+str(self.mapper_id)
+                msg_val = str(list_item[0]+" "+str(list_item[1])+"\n")
+                self.mapper_client.append_key(msg_key, msg_val)
+            self.LOG.log(50, 'output for mapper ' +
+                         str(self.mapper_id) + ' stored in key value store')
+            return True
+        except Exception as e:
+            self.LOG.log(30, "Exception while running send_mapper_output")
+            print(e, sys.exc_info())
 
     def run_serialized_mapper(self, key, value):
-        self.LOG.log(
-            50, 'Running supplied mapper on worker '+str(self.mapper_id))
-        # with open(self.config['app_config']['MapperCodeSerialized'], 'rb') as fd:
-        #     code_string = fd.read()
-        #     code = marshal.loads(code_string)
-        #     user_defined_map_function = types.FunctionType(
-        #         code, globals(), "user_defined_map_function"+str(self.mapper_id))
-        # mapper_output = user_defined_map_function(key, value)
-        mapper_output = word_count_mapper(key, value)
-        self.LOG.log(50, 'Mapper '+str(self.mapper_id) +
-                     " has run mapper function")
-        return mapper_output
+        try:
+            self.LOG.log(
+                50, 'Running supplied mapper on worker '+str(self.mapper_id))
+            # with open(self.config['app_config']['MapperCodeSerialized'], 'rb') as fd:
+            #     code_string = fd.read()
+            #     code = marshal.loads(code_string)
+            #     user_defined_map_function = types.FunctionType(
+            #         code, globals(), "user_defined_map_function"+str(self.mapper_id))
+            # mapper_output = user_defined_map_function(key, value)
+            mapper_output = word_count_mapper(key, value)
+            self.LOG.log(50, 'Mapper '+str(self.mapper_id) +
+                         " has run mapper function")
+            return mapper_output
+        except Exception as e:
+            self.LOG.log(30, "Exception while running run_serialized_mapper")
+            print(e, sys.exc_info())
 
     def get_mapper_data(self):
         try:
@@ -77,8 +86,9 @@ class mapper:
             self.LOG.log(50, 'mapper '+str(self.mapper_id)+" done")
             return True
         except Exception as e:
-            self.LOG.log(30, "Mapper "+str(self.mapper_id)+" broke down")
-            self.LOG.log(30, e)
+            self.LOG.log(30, "Exception while running get_mapper_data")
+            print(e, sys.exc_info())
+            self.LOG.log(50, "Mapper "+str(self.mapper_id)+" broke down")
             return False
 
     def get_mapper_id(self):
@@ -98,6 +108,14 @@ class mapper:
             time.sleep(7)
         return True
 
+    def mapper_clean_files(self):
+        self.LOG.loggger(
+            50, 'Cleaning previous files for mapper %d' % (self.mapper_id))
+        for reducer_id in range(self.config['app_config']['NumberOfReducers']):
+            msg_key = "reducer"+str(reducer_id)+"mapper"+str(self.mapper_id)
+            self.mapper_client.clean_file_by_line(msg_key)
+        return True
+
     def __init__(self, mapper_name, mapper_port):
         self.finished_checker = True
         self.mapper_port = mapper_port
@@ -106,8 +124,9 @@ class mapper:
                                     int(self.config['app_config']['KeyValueServerPort']))
         self.mapper_id = self.get_mapper_id()
         heartbeat_thread = threading.Thread(
-            target=self.send_heartbeat, args=())
+            target=self.send_heartbeat, args=(), daemon=True)
         heartbeat_thread.start()
+        self.mapper_clean_files()
         # self.send_heartbeat()
         self.LOG.log(50, "Booting up map-reduce mapper with id " +
                      str(self.mapper_id))

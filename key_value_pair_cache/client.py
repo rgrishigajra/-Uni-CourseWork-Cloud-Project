@@ -10,6 +10,14 @@ class client:
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
     LOG = log_helper._logger("client")
 
+    def clean_file_by_line(self, key):
+        client_message = 'clean '+key+' \r\n'
+        self.client_socket.send(client_message.encode())
+        self.LOG.log(20, 'Client sent a cleans request!')
+        server_output = self.client_socket.recv(4096)
+        self.LOG.log(10, server_output)
+        return server_output.decode()
+
     def delete_all(self):
         try:
             client_message = 'delete all \r\n'
