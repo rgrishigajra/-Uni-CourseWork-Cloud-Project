@@ -109,7 +109,7 @@ class mapper:
         return True
 
     def mapper_clean_files(self):
-        self.LOG.loggger(
+        self.LOG.log(
             50, 'Cleaning previous files for mapper %d' % (self.mapper_id))
         for reducer_id in range(self.config['app_config']['NumberOfReducers']):
             msg_key = "reducer"+str(reducer_id)+"mapper"+str(self.mapper_id)

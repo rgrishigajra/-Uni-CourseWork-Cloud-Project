@@ -110,8 +110,8 @@ class reducer:
         return True
 
     def reducer_clean_files(self):
-        self.LOG.loggger(
-            50, 'Cleaning previous files for reducer %d' % (self.mapper_id))
+        self.LOG.log(
+            50, 'Cleaning previous files for reducer %d' % (self.reducer_id))
         msg_key = 'reducer_output' + str(self.reducer_id)
         self.reducer_client.clean_file_by_line(msg_key)
         return True
