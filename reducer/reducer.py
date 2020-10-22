@@ -12,6 +12,7 @@ import random
 import urllib.request
 import threading
 import time
+from reducer.word_count_reducer import word_count_reducer
 
 
 class reducer:
@@ -33,12 +34,13 @@ class reducer:
     def run_serialized_reducer(self, input_list):
         self.LOG.log(
             50, 'Running supplied reducer on worker '+str(self.reducer_id))
-        with open(self.config['app_config']['ReducerCodeSerialized'], 'rb') as fd:
-            code_string = fd.read()
-            code = marshal.loads(code_string)
-            user_defined_reduce_function = types.FunctionType(
-                code, globals(), "user_defined_reducer_function"+str(self.reducer_id))
-        reducer_output = user_defined_reduce_function(input_list)
+        # with open(self.config['app_config']['ReducerCodeSerialized'], 'rb') as fd:
+        #     code_string = fd.read()
+        #     code = marshal.loads(code_string)
+        #     user_defined_reduce_function = types.FunctionType(
+        #         code, globals(), "user_defined_reducer_function"+str(self.reducer_id))
+        reducer_output = word_count_reducer(input_list)
+        # reducer_output = user_defined_reduce_function(input_list)
         self.LOG.log(50, 'Reducer '+str(self.reducer_id) +
                      " has run reducer function")
         return reducer_output
@@ -92,7 +94,8 @@ class reducer:
 
     def send_heartbeat(self):
         while self.finished_checker:
-            self.reducer_client.set_key('reducer_status'+str(id), 'assigned')
+            self.reducer_client.set_key(
+                'reducer_status'+str(self.id), 'assigned')
             time.sleep(7)
         return True
 
