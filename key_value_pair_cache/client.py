@@ -65,14 +65,17 @@ class client:
         try:
             client_message = 'getlines '+key+' \r\n'
             self.client_socket.send(client_message.encode())
-            self.LOG.log(20, 'Client sent a get lines request!')
+            self.LOG.log(20, 'Client sent a get lines for %s request!' % (key))
             server_output = self.client_socket.recv(4096)
             decoded_msg = server_output.decode()
+            self.LOG.log(20, 'Client got  %s ' % (decoded_msg))
             if decoded_msg == ' \r\nEND\r\n':
-                return False
+                return decoded_msg
             value_len = len(decoded_msg.split(' \r\n')[1])
             value_len_given_by_server = int(
                 decoded_msg.split(' \r\n')[0].split(' ')[2]) + len(' \r\nEND\r\n')
+            self.LOG.log(20, 'Get lines left for request: %d - %d' %
+                         (value_len, value_len_given_by_server))
             while value_len_given_by_server > value_len:
                 if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
                     break
