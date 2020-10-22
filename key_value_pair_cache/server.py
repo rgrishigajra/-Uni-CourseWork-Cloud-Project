@@ -138,7 +138,7 @@ class server:
         return "DELETED\r\n"
 
     def append_key_value(self, message_args):
-        self.LOG.log(20, "client fired an append query!")
+        self.LOG.log(10, "client fired an append query!")
         try:
             if message_args[1] in self.key_value:  # check if key is present already
                 self.append_line_to_file(
@@ -194,8 +194,10 @@ class server:
                 self.file_value[self.key_value[message_args[1]]] = value
             else:
                 value = self.file_value[self.key_value[message_args[1]]]
+        length = len(value.encode('ascii', 'ignore')) + \
+            len('VALUE ')+len(' \r\n')*2+len("END\r\n")
         resp = 'VALUE ' + \
-            str(message_args[1])+' ' + str(len(value)) + \
+            str(message_args[1])+' ' + str(length) + \
             ' \r\n' + str(value)+' \r\n' + "END\r\n"
         return resp
 

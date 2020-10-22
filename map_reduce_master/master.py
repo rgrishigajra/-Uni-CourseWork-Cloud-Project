@@ -72,7 +72,7 @@ class map_reduce:
         no_of_loops = 0
         while True:
             time.sleep(13)
-            no_of_loops = 1
+            no_of_loops += 1
             status_dict = defaultdict(str)
             total_dict = defaultdict(int)
             self.LOG.log(
@@ -81,8 +81,8 @@ class map_reduce:
             print('key', keys)
             for key in keys:
                 val = self.master_client.get_key(key)
-                print(key, val, 'keyval')
                 status_dict[key] = val.split(' \r\n')[1]
+                print(key, status_dict[key])
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
@@ -146,6 +146,7 @@ class map_reduce:
             for key in keys:
                 val = self.master_client.get_key(key)
                 status_dict[key] = val.split(' \r\n')[1]
+                print(key, status_dict[key])
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
@@ -193,14 +194,14 @@ class map_reduce:
     def run_map_reduce(self):
         self.LOG.log(50, "Starting up map-reduce with " +
                      self.config['app_config']['NumberOfMappers']+" mappers and "+self.config['app_config']['NumberOfReducers']+" reducers")
-        self.create_status_map()
-        self.divide_loads()
-        self.boot_mappers()
-        self.moniter_mappers()
-        self.delete_mappers()
-        self.boot_reducers()
-        self.moniter_reducers()
-        self.delete_reducers()
+        # self.create_status_map()
+        # self.divide_loads()
+        # self.boot_mappers()
+        # self.moniter_mappers()
+        # self.delete_mappers()
+        # self.boot_reducers()
+        # self.moniter_reducers()
+        # self.delete_reducers()
         self.get_output()
         return True
 
@@ -211,7 +212,7 @@ class map_reduce:
         self.mapper_pool = []
         self.reducer_pool = []
         self.executor = concurrent.futures.ProcessPoolExecutor()
-        self.master_client.delete_all()
+        # self.master_client.delete_all()
         # while True:
         #     if not self.master_client.ping_server():
         #         self.LOG.log(50, 'key-value is store offline')

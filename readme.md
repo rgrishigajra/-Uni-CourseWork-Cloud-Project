@@ -15,3 +15,7 @@ export VAR=abc
 python3 server_init.py'
 
 gcloud compute instances delete key-value-server --zone us-central1-a --quiet
+
+sudo kill -9 `sudo lsof -t -i:9001`
+
+sudo google_metadata_script_runner --script-type startup --debug

@@ -34,7 +34,7 @@ class client:
             client_message = 'append ' + key + ' ' + \
                 str(len(value.encode()))+' \r\n' + value + '\r\n'
             self.client_socket.send(client_message.encode())
-            self.LOG.log(20, 'Client sent a append request!')
+            self.LOG.log(10, 'Client sent a append request!')
             server_output = self.client_socket.recv(4096)
             self.LOG.log(10, server_output)
             return server_output.decode()
@@ -47,7 +47,7 @@ class client:
             client_message = 'set ' + key + ' ' + \
                 str(len(value.encode()))+' \r\n' + value + '\r\n'
             self.client_socket.send(client_message.encode())
-            self.LOG.log(20, 'Client sent a set request!')
+            self.LOG.log(10, 'Client sent a set request!')
             server_output = self.client_socket.recv(4096)
             self.LOG.log(10, server_output)
             return server_output.decode()
@@ -61,7 +61,7 @@ class client:
         try:
             client_message = 'searchid' + ' ' + str(id)+" \r\n"
             self.client_socket.send(client_message.encode())
-            self.LOG.log(20, 'Client sent a set request!')
+            self.LOG.log(10, 'Client sent a set request!')
             server_output = self.client_socket.recv(4096)
             self.LOG.log(10, server_output)
             # returns a list of keys
@@ -77,13 +77,12 @@ class client:
             server_output = self.client_socket.recv(4096)
             decoded_msg = server_output.decode()
             self.LOG.log(20, 'Client got  %s ' % (decoded_msg))
-            if decoded_msg == ' \r\nEND\r\n':
-                return decoded_msg
-            value_len = len(decoded_msg.split(' \r\n')[1])
-            value_len_given_by_server = int(
-                decoded_msg.split(' \r\n')[0].split(' ')[2]) + len(' \r\nEND\r\n')
+            # if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
+            #     return decoded_msg
+            value_len = len(decoded_msg)
+            value_len_given_by_server = int(decoded_msg.split(' ')[2])
             self.LOG.log(20, 'Get lines left for request: %d - %d' %
-                         (value_len, value_len_given_by_server))
+                         (value_len_given_by_server, value_len))
             while value_len_given_by_server > value_len:
                 if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
                     break
@@ -91,19 +90,10 @@ class client:
                     min(4096, value_len_given_by_server-value_len))
                 decoded_msg += server_output.decode("utf-8", "ignore")
                 value_len += min(4096, value_len_given_by_server-value_len)
-                if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
-                    break
-            # if 'MULTIMSG' == decoded_msg[:len("MULTIMSG")]:
-            #     server_output = ''.encode()
-            #     lenght_of_msg = int(decoded_msg.split(' ')[1])
-                # while lenght_of_msg > 0:
-                #     server_output += self.client_socket.recv(4096)
-                #     lenght_of_msg -= 4096
-                # decoded_msg = server_output.decode()
-                # self.LOG.log(10, server_output)
             return decoded_msg
-        except ConnectionRefusedError as e:
+        except Exception as e:
             self.LOG.exception(e)
+            print(e)
         return True
 # sends a get request by sending a key in required format
 
