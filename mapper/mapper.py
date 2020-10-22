@@ -94,7 +94,7 @@ class mapper:
     def send_heartbeat(self):
         while self.finished_checker:
             self.mapper_client.set_key(
-                'mapper_status'+str(self.id), 'assigned')
+                'mapper_status'+str(self.mapper_id), 'assigned')
             time.sleep(7)
         return True
 

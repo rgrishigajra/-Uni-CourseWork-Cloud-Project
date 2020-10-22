@@ -95,7 +95,7 @@ class reducer:
     def send_heartbeat(self):
         while self.finished_checker:
             self.reducer_client.set_key(
-                'reducer_status'+str(self.id), 'assigned')
+                'reducer_status'+str(self.reducer_id), 'assigned')
             time.sleep(7)
         return True
 
