@@ -12,6 +12,7 @@ import random
 import urllib.request
 import threading
 import time
+from mapper.word_count_mapper import word_count_mapper
 
 
 class mapper:
@@ -36,14 +37,15 @@ class mapper:
     def run_serialized_mapper(self, key, value):
         self.LOG.log(
             50, 'Running supplied mapper on worker '+str(self.mapper_id))
-        with open(self.config['app_config']['MapperCodeSerialized'], 'rb') as fd:
-            code_string = fd.read()
-            code = marshal.loads(code_string)
-            user_defined_map_function = types.FunctionType(
-                code, globals(), "user_defined_map_function"+str(self.mapper_id))
-            mapper_output = user_defined_map_function(key, value)
-            self.LOG.log(50, 'Mapper '+str(self.mapper_id) +
-                         " has run mapper function")
+        # with open(self.config['app_config']['MapperCodeSerialized'], 'rb') as fd:
+        #     code_string = fd.read()
+        #     code = marshal.loads(code_string)
+        #     user_defined_map_function = types.FunctionType(
+        #         code, globals(), "user_defined_map_function"+str(self.mapper_id))
+        # mapper_output = user_defined_map_function(key, value)
+        mapper_output = word_count_mapper(key, value)
+        self.LOG.log(50, 'Mapper '+str(self.mapper_id) +
+                     " has run mapper function")
         return mapper_output
 
     def get_mapper_data(self):
