@@ -78,7 +78,7 @@ class reducer:
                 # runs serial reducer script
                 reducer_output = self.run_serialized_reducer(input_list)
                 self.send_reducer_output(reducer_output)
-            if random.randrange(int(self.number_of_reducers)+1) == int(self.number_of_reducers) and self.config['app_config']['TestReducerFail'] == "True":
+            if random.randrange(int(self.number_of_reducers)+1) == int(self.number_of_reducers) and self.test_reducer_fail == "True":
                 self.LOG.log(30, "Creating an exception in reducer " +
                              str(self.reducer_id)+" for testing")
                 raise Exception
@@ -142,6 +142,8 @@ class reducer:
             'NumberOfReducers').split(' ')[2])
         self.reducer_code_serialized = self.reducer_client.get_key(
             'ReducerCodeSerialized').split(' ')[2]
+        self.test_reducer_fail = self.reducer_client.get_key(
+            'TestReducerFail').split(' ')[2]
         self.reducer_id = self.get_reducer_id()
         self.LOG.log(50, "Booting up map-reduce reducer with id " +
                      str(self.reducer_id))

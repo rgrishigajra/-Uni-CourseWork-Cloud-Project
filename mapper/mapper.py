@@ -79,7 +79,7 @@ class mapper:
                     key_value_pair[0], key_value_pair[1])
                 # gets a list of (key,value) pairs, storing it in kay value store for each reducer
                 self.send_mapper_output(mapper_output)
-            if random.randrange(int(self.number_of_mappers + 1)) == int(self.number_of_mappers) and self.config['app_config']['TestMapperFail'] == "True":
+            if random.randrange(int(self.number_of_mappers + 1)) == int(self.number_of_mappers) and self.test_mapper_fail == "True":
                 self.LOG.log(30, "Creating an exception in mapper " +
                              str(self.mapper_id)+" for testing")
                 raise Exception
@@ -92,6 +92,7 @@ class mapper:
             self.LOG.log(30, "Exception while running get_mapper_data")
             print(e, sys.exc_info())
             self.LOG.log(50, "Mapper "+str(self.mapper_id)+" broke down")
+            exit()
             return False
 
     def get_mapper_id(self):
@@ -140,6 +141,8 @@ class mapper:
             'NumberOfReducers').split(' ')[2])
         self.mapper_code_serialized = self.mapper_client.get_key(
             'MapperCodeSerialized').split(' ')[2]
+        self.test_mapper_fail = self.mapper_client.get_key(
+            'TestMapperFail').split(' ')[2]
         self.mapper_id = self.get_mapper_id()
         self.LOG.log(50, "Booting up map-reduce mapper with id " +
                      str(self.mapper_id))
