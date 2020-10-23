@@ -43,7 +43,7 @@ class map_reduce:
         return True
 
     def boot_instance(self, instance_name, startup_script):
-        command = "gcloud compute instances create %s --zone us-central1-a --machine-type=e2-micro --image=ubuntu-1804-bionic-v20201014 --image-project=ubuntu-os-cloud --boot-disk-size=10GB --scopes=compute-rw,storage-ro --metadata-from-file startup-script=%s" % (
+        command = "gcloud compute instances create %s --zone us-central1-a --machine-type=e2-micro --image=ubuntu-1804-bionic-v20201014 --image-project=ubuntu-os-cloud --boot-disk-size=10GB --preemptible --scopes=compute-rw,storage-ro --metadata-from-file startup-script=%s" % (
             instance_name, startup_script)
         try:
             subprocess.run(command, shell=True, check=True)

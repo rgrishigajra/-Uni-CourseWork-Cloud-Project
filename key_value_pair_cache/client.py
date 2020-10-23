@@ -152,7 +152,7 @@ class client:
                 self.client_socket.connect((server_name, server_port))
                 break
             except ConnectionRefusedError as e:
-                self.LOG.exception("waiting for key value server")
+                self.LOG.log(30,"waiting for key value server")
                 time.sleep(5)
 
         '''
