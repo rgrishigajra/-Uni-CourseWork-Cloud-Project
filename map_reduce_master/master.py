@@ -7,6 +7,7 @@ import pickle
 import concurrent.futures
 from collections import defaultdict
 import subprocess
+import urllib.request
 
 
 class map_reduce:
@@ -224,6 +225,13 @@ class map_reduce:
         ip = output.stdout.decode()[:-1]
         return ip
 
+    def get_config(self, key):
+        eq = urllib.request.Request(
+            'http://metadata.google.internal/computeMetadata/v1/instance/attributes/'+str(key), headers={"Metadata-Flavor": "Google"})
+        value = urllib.request.urlopen(eq).read().decode().split('.')
+        self.LOG.log(50, '%s : %s' % (key, value))
+        return value
+
     def __init__(self):
         self.LOG.log(50, "Booting up map-reduce master")
         self.key_value_ip = str(self.get_server_ip())
@@ -233,16 +241,19 @@ class map_reduce:
         self.reducer_pool = []
         self.executor = concurrent.futures.ProcessPoolExecutor()
         self.master_client.delete_all()
-        self.master_client.set_key(
-            'NumberOfMappers', self.config['app_config']['NumberOfMappers'])
-        self.master_client.set_key(
-            'NumberOfReducers', self.config['app_config']['NumberOfReducers'])
-        self.master_client.set_key(
-            'MapperCodeSerialized', self.config['app_config']['MapperCodeSerialized'])
-        self.master_client.set_key(
-            'ReducerCodeSerialized', self.config['app_config']['ReducerCodeSerialized'])
-        self.master_client.set_key(
-            'TestMapperFail', self.config['app_config']['TestMapperFail'])
-        self.master_client.set_key(
-            'TestReducerFail', self.config['app_config']['TestReducerFail'])
+        try:
+            self.master_client.set_key(
+                'NumberOfMappers', get_config('NumberOfMappers'))
+            self.master_client.set_key(
+                'NumberOfReducers', get_config('NumberOfReducers'))
+            self.master_client.set_key(
+                'MapperCodeSerialized', get_config('MapperCodeSerialized'))
+            self.master_client.set_key(
+                'ReducerCodeSerialized', get_config('ReducerCodeSerialized'))
+            self.master_client.set_key(
+                'TestMapperFail', get_config('TestMapperFail'))
+            self.master_client.set_key(
+                'TestReducerFail', get_config('TestReducerFail'))
+        except:
+            self.LOG.log(50, 'error while getting meta data')
         return
