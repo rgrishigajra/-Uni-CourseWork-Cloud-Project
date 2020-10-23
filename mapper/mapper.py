@@ -13,6 +13,7 @@ import urllib.request
 import threading
 import time
 from mapper.word_count_mapper import word_count_mapper
+from mapper.inverted_index_mapper import inverted_index_mapper
 
 
 class mapper:
@@ -43,13 +44,16 @@ class mapper:
         try:
             self.LOG.log(
                 50, 'Running supplied mapper on worker '+str(self.mapper_id))
-            with open(self.mapper_code_serialized, 'rb') as fd:
-                code_string = fd.read()
-                code = marshal.loads(code_string)
-                user_defined_map_function = types.FunctionType(
-                    code, globals(), "user_defined_map_function"+str(self.mapper_id))
-            mapper_output = user_defined_map_function(key, value)
-            # mapper_output = word_count_mapper(key, value)
+            # with open(self.mapper_code_serialized, 'rb') as fd:
+            #     code_string = fd.read()
+            #     code = marshal.loads(code_string)
+            #     user_defined_map_function = types.FunctionType(
+            #         code, globals(), "user_defined_map_function"+str(self.mapper_id))
+            # mapper_output = user_defined_map_function(key, value)
+            if self.mapper_code_serialized == 'mapper/word_count_mapper_serialized':
+                mapper_output = word_count_mapper(key, value)
+            else:
+                mapper_output = inverted_index_mapper(key, value)
             self.LOG.log(50, 'Mapper '+str(self.mapper_id) +
                          " has run mapper function")
             return mapper_output

@@ -13,6 +13,7 @@ import urllib.request
 import threading
 import time
 from reducer.word_count_reducer import word_count_reducer
+from reducer.inverted_index_reducer import inverted_index_reducer
 
 
 class reducer:
@@ -39,13 +40,16 @@ class reducer:
         try:
             self.LOG.log(
                 50, 'Running supplied reducer on worker '+str(self.reducer_id))
-            with open(self.reducer_code_serialized, 'rb') as fd:
-                code_string = fd.read()
-                code = marshal.loads(code_string)
-                user_defined_reduce_function = types.FunctionType(
-                    code, globals(), "user_defined_reducer_function"+str(self.reducer_id))
-            # reducer_output = word_count_reducer(input_list)
-            reducer_output = user_defined_reduce_function(input_list)
+            # with open(self.reducer_code_serialized, 'rb') as fd:
+            #     code_string = fd.read()
+            #     code = marshal.loads(code_string)
+            #     user_defined_reduce_function = types.FunctionType(
+            #         code, globals(), "user_defined_reducer_function"+str(self.reducer_id))
+            if self.reducer_code_serialized == 'reducer/word_count_reducer_serialized':
+                reducer_output = word_count_reducer(input_list)
+            else:
+                reducer_output = inverted_index_reducer(input_list)
+            # reducer_output = user_defined_reduce_function(input_list)
             self.LOG.log(50, 'Reducer '+str(self.reducer_id) +
                          " has run reducer function")
             return reducer_output
@@ -130,9 +134,9 @@ class reducer:
             'NumberOfReducers').split(' ')[2])
         self.reducer_code_serialized = self.reducer_client.get_key(
             'ReducerCodeSerialized').split(' ')[2]
-        self.LOG.log(50, "Booting up map-reduce mapper with id " +
-                     str(self.mapper_id))
         self.reducer_id = self.get_reducer_id()
+        self.LOG.log(50, "Booting up map-reduce reducer with id " +
+                     str(self.reducer_id))
         heartbeat_thread = threading.Thread(
             target=self.send_heartbeat, args=(), daemon=True)
         heartbeat_thread.start()
