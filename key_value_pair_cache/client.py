@@ -4,6 +4,7 @@ import random
 import key_value_pair_cache.helper_functions.log_helper as log_helper
 import os
 import random
+import time
 
 
 class client:
@@ -151,7 +152,8 @@ class client:
                 self.client_socket.connect((server_name, server_port))
                 break
             except ConnectionRefusedError as e:
-                self.LOG.exception(e)
+                self.LOG.exception("waiting for key value server")
+                time.sleep(5)
 
         '''
         uncomment the lines below to run just one client file from command line as client.py with (port number as argument)

@@ -136,13 +136,13 @@ class mapper:
         self.mapper_client = client(str(self.key_value_ip),
                                     int(self.config['app_config']['KeyValueServerPort']))
         self.number_of_mappers = int(self.mapper_client.get_key(
-            'NumberOfMappers').split(' ')[2])
+            'NumberOfMappers').split(' ')[3])
         self.number_of_reducers = int(self.mapper_client.get_key(
-            'NumberOfReducers').split(' ')[2])
+            'NumberOfReducers').split(' ')[3])
         self.mapper_code_serialized = self.mapper_client.get_key(
-            'MapperCodeSerialized').split(' ')[2]
+            'MapperCodeSerialized').split(' ')[3]
         self.test_mapper_fail = self.mapper_client.get_key(
-            'TestMapperFail').split(' ')[2]
+            'TestMapperFail').split(' ')[3]
         self.mapper_id = self.get_mapper_id()
         self.LOG.log(50, "Booting up map-reduce mapper with id " +
                      str(self.mapper_id))

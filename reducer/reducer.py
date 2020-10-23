@@ -137,13 +137,13 @@ class reducer:
         self.reducer_client = client(str(self.key_value_ip),
                                      int(self.config['app_config']['KeyValueServerPort']))
         self.number_of_mappers = int(self.reducer_client.get_key(
-            'NumberOfMappers').split(' ')[2])
+            'NumberOfMappers').split(' ')[3])
         self.number_of_reducers = int(self.reducer_client.get_key(
-            'NumberOfReducers').split(' ')[2])
+            'NumberOfReducers').split(' ')[3])
         self.reducer_code_serialized = self.reducer_client.get_key(
-            'ReducerCodeSerialized').split(' ')[2]
+            'ReducerCodeSerialized').split(' ')[3]
         self.test_reducer_fail = self.reducer_client.get_key(
-            'TestReducerFail').split(' ')[2]
+            'TestReducerFail').split(' ')[3]
         self.reducer_id = self.get_reducer_id()
         self.LOG.log(50, "Booting up map-reduce reducer with id " +
                      str(self.reducer_id))
