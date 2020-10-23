@@ -14,6 +14,7 @@ import threading
 import time
 from mapper.word_count_mapper import word_count_mapper
 from mapper.inverted_index_mapper import inverted_index_mapper
+import subprocess
 
 
 class mapper:
@@ -104,8 +105,8 @@ class mapper:
         return int(id)
 
     def send_heartbeat(self):
-        heart_beat_client = client(str(self.config['app_config']['KeyValueServerIP']),
-                                       int(self.config['app_config']['KeyValueServerPort']))
+        heart_beat_client = client(str(self.key_value_ip),
+                                   int(self.config['app_config']['KeyValueServerPort']))
         while self.finished_checker:
             heart_beat_client.set_key(
                 'mapper_status'+str(self.mapper_id), 'assigned')
@@ -120,11 +121,18 @@ class mapper:
             self.mapper_client.clean_file_by_line(msg_key)
         return True
 
+    def get_server_ip(self):
+        output = subprocess.run(
+            "gcloud compute instances describe key-value-server4 --zone=us-central1-a --format='get(networkInterfaces[0].accessConfigs[0].natIP)'", shell=True, check=True, stdout=subprocess.PIPE)
+        ip = output.stdout.decode()[:-1]
+        return ip
+
     def __init__(self, mapper_name, mapper_port):
         self.finished_checker = True
+        self.key_value_ip = str(self.get_server_ip())
         self.mapper_port = mapper_port
         self.mapper_name = mapper_name
-        self.mapper_client = client(str(self.config['app_config']['KeyValueServerIP']),
+        self.mapper_client = client(str(self.key_value_ip),
                                     int(self.config['app_config']['KeyValueServerPort']))
         self.number_of_mappers = int(self.mapper_client.get_key(
             'NumberOfMappers').split(' ')[2])

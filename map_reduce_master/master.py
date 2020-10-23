@@ -42,7 +42,7 @@ class map_reduce:
         return True
 
     def boot_instance(self, instance_name, startup_script):
-        command = "gcloud compute instances create %s --zone us-central1-a --machine-type=e2-micro --image=ubuntu-1804-bionic-v20201014 --image-project=ubuntu-os-cloud --boot-disk-size=10GB --metadata-from-file startup-script=%s" % (
+        command = "gcloud compute instances create %s --zone us-central1-a --machine-type=e2-micro --image=ubuntu-1804-bionic-v20201014 --image-project=ubuntu-os-cloud --boot-disk-size=10GB --scopes=compute-rw,storage-ro --metadata-from-file startup-script=%s" % (
             instance_name, startup_script)
         try:
             subprocess.run(command, shell=True, check=True)
@@ -207,20 +207,27 @@ class map_reduce:
     def run_map_reduce(self):
         self.LOG.log(50, "Starting up map-reduce with " +
                      self.config['app_config']['NumberOfMappers']+" mappers and "+self.config['app_config']['NumberOfReducers']+" reducers")
-        self.create_status_map()
-        self.divide_loads()
+        # self.create_status_map()
+        # self.divide_loads()
         self.boot_mappers()
-        self.moniter_mappers()
-        self.delete_mappers()
-        self.boot_reducers()
-        self.moniter_reducers()
-        self.delete_reducers()
-        self.get_output()
+        # self.moniter_mappers()
+        # self.delete_mappers()
+        # self.boot_reducers()
+        # self.moniter_reducers()
+        # self.delete_reducers()
+        # self.get_output()
         return True
+
+    def get_server_ip(self):
+        output = subprocess.run(
+            "gcloud compute instances describe key-value-server4 --zone=us-central1-a --format='get(networkInterfaces[0].accessConfigs[0].natIP)'", shell=True, check=True, stdout=subprocess.PIPE)
+        ip = output.stdout.decode()[:-1]
+        return ip
 
     def __init__(self):
         self.LOG.log(50, "Booting up map-reduce master")
-        self.master_client = client(str(self.config['app_config']['KeyValueServerIP']), int(
+        self.key_value_ip = str(self.get_server_ip())
+        self.master_client = client(self.key_value_ip, int(
             self.config['app_config']['KeyValueServerPort']))
         self.mapper_pool = []
         self.reducer_pool = []

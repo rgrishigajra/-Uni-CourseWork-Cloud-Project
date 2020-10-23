@@ -14,6 +14,7 @@ import threading
 import time
 from reducer.word_count_reducer import word_count_reducer
 from reducer.inverted_index_reducer import inverted_index_reducer
+import subprocess
 
 
 class reducer:
@@ -107,8 +108,8 @@ class reducer:
         return int(id)
 
     def send_heartbeat(self):
-        heart_beat_client = client(str(self.config['app_config']['KeyValueServerIP']),
-                                       int(self.config['app_config']['KeyValueServerPort']))
+        heart_beat_client = client(str(self.key_value_ip),
+                                   int(self.config['app_config']['KeyValueServerPort']))
         while self.finished_checker:
             heart_beat_client.set_key(
                 'reducer_status'+str(self.reducer_id), 'assigned')
@@ -122,11 +123,18 @@ class reducer:
         self.reducer_client.clean_file_by_line(msg_key)
         return True
 
+    def get_server_ip(self):
+        output = subprocess.run(
+            "gcloud compute instances describe key-value-server4 --zone=us-central1-a --format='get(networkInterfaces[0].accessConfigs[0].natIP)'", shell=True, check=True, stdout=subprocess.PIPE)
+        ip = output.stdout.decode()[:-1]
+        return ip
+
     def __init__(self, reducer_name, reducer_port):
+        self.key_value_ip = str(self.get_server_ip())
         self.finished_checker = True
         self.reducer_port = reducer_port
         self.reducer_name = reducer_name
-        self.reducer_client = client(str(self.config['app_config']['KeyValueServerIP']),
+        self.reducer_client = client(str(self.key_value_ip),
                                      int(self.config['app_config']['KeyValueServerPort']))
         self.number_of_mappers = int(self.reducer_client.get_key(
             'NumberOfMappers').split(' ')[2])
