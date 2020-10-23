@@ -20,9 +20,9 @@ class map_reduce:
 
     def create_status_map(self):
         self.LOG.log(50, 'creating status map for mappers and reducers')
-        for i in range(int(self.get_config('NumberOfMappers'))):
+        for i in range(int(self.NumberOfMappers)):
             self.master_client.set_key('mapper_status'+str(i), 'idle')
-        for i in range(int(self.get_config('NumberOfReducers'))):
+        for i in range(int(self.NumberOfReducers)):
             self.master_client.set_key('reducer_status'+str(i), 'idle')
         return True
 
@@ -37,7 +37,7 @@ class map_reduce:
                     if line != '\n':
                         self.assign_mapper(mapper_iterator, file_no, line)
                         mapper_iterator = (
-                            mapper_iterator+1) % int(self.get_config('NumberOfMappers'))
+                            mapper_iterator+1) % int(self.NumberOfMappers)
                     line = doc.readline()
         self.LOG.log(50, 'Divided all loads successfully')
         return True
@@ -66,7 +66,7 @@ class map_reduce:
 
     def boot_mappers(self):
         self.LOG.log(50, 'Booting up mappers')
-        for i in range(int(self.get_config('NumberOfMappers'))):
+        for i in range(int(self.NumberOfMappers)):
             self.boot_instance('mapper'+str(i), 'mapper_starter.sh')
             # subprocess.run("python3 mapper_init.py",
             #                shell=True, check=True)
@@ -97,7 +97,7 @@ class map_reduce:
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' check:' + str(total_dict['check'])+' finished:'+str(total_dict['finished']))
-            if total_dict['finished'] == int(self.get_config('NumberOfMappers')):
+            if total_dict['finished'] == int(self.NumberOfMappers):
                 break
             for running_mapper in status_dict.keys():
                 if status_dict[running_mapper] == 'check':
@@ -122,14 +122,14 @@ class map_reduce:
         return True
 
     def delete_mappers(self):
-        for i in range(int(self.get_config('NumberOfMappers'))):
+        for i in range(int(self.NumberOfMappers)):
             self.delete_instance('mapper'+str(i))
         return True
 
     def boot_reducers(self):
         id = 0
         self.LOG.log(50, 'Booting up reducers')
-        for i in range(int(self.get_config('NumberOfReducers'))):
+        for i in range(int(self.NumberOfReducers)):
             self.boot_instance('reducer'+str(i), 'reducer_starter.sh')
             # subprocess.run("python3 reducer_init.py",
             #                shell=True, check=True)
@@ -161,7 +161,7 @@ class map_reduce:
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' check:' + str(total_dict['check'])+' finished:'+str(total_dict['finished']))
-            if total_dict['finished'] == int(self.get_config('NumberOfReducers')):
+            if total_dict['finished'] == int(self.NumberOfReducers):
                 break
             for running_reducer in status_dict.keys():
                 if status_dict[running_reducer] == 'check':
@@ -186,7 +186,7 @@ class map_reduce:
         return True
 
     def delete_reducers(self):
-        for i in range(int(self.get_config('NumberOfReducers'))):
+        for i in range(int(self.NumberOfReducers)):
             self.delete_instance('reducer'+str(i))
         return True
 
@@ -207,7 +207,7 @@ class map_reduce:
 
     def run_map_reduce(self):
         self.LOG.log(50, "Starting up map-reduce with " +
-                     self.get_config('NumberOfMappers')+" mappers and "+self.get_config('NumberOfReducers')+" reducers")
+                     self.NumberOfMappers+" mappers and "+self.NumberOfReducers+" reducers")
         self.create_status_map()
         self.divide_loads()
         self.boot_mappers()
@@ -228,7 +228,7 @@ class map_reduce:
     def get_config(self, key):
         eq = urllib.request.Request(
             'http://metadata.google.internal/computeMetadata/v1/instance/attributes/'+str(key), headers={"Metadata-Flavor": "Google"})
-        value = urllib.request.urlopen(eq).read().decode().split('.')
+        value = urllib.request.urlopen(eq).read().decode().split('.')[0]
         self.LOG.log(50, '%s : %s' % (key, value))
         return value
 
@@ -241,19 +241,25 @@ class map_reduce:
         self.reducer_pool = []
         self.executor = concurrent.futures.ProcessPoolExecutor()
         self.master_client.delete_all()
+        self.NumberOfMappers = self.get_config('NumberOfMappers')
+        self.NumberOfReducers = self.get_config('NumberOfReducers')
+        self.MapperCodeSerialized = self.get_config('MapperCodeSerialized')
+        self.ReducerCodeSerialized = self.get_config('ReducerCodeSerialized')
+        self.TestMapperFail = self.get_config('TestMapperFail')
+        self.TestReducerFail = self.get_config('TestReducerFail')
         try:
             self.master_client.set_key(
-                'NumberOfMappers', self.get_config('NumberOfMappers'))
+                'NumberOfMappers', self.NumberOfMappers)
             self.master_client.set_key(
-                'NumberOfReducers', self.get_config('NumberOfReducers'))
+                'NumberOfReducers', self.NumberOfReducers)
             self.master_client.set_key(
-                'MapperCodeSerialized', self.get_config('MapperCodeSerialized'))
+                'MapperCodeSerialized', self.MapperCodeSerialized)
             self.master_client.set_key(
-                'ReducerCodeSerialized', self.get_config('ReducerCodeSerialized'))
+                'ReducerCodeSerialized', self.ReducerCodeSerialized)
             self.master_client.set_key(
-                'TestMapperFail', self.get_config('TestMapperFail'))
+                'TestMapperFail', self.TestMapperFail)
             self.master_client.set_key(
-                'TestReducerFail', self.get_config('TestReducerFail'))
+                'TestReducerFail', self.TestReducerFail)
         except:
             self.LOG.log(50, 'error while getting meta data')
         return
