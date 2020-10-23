@@ -16,7 +16,7 @@ def test_output_word_count():
     for file_no, file_loc in config['input_files'].items():
         with open(file_loc) as doc:
             inp += doc.read()
-    encoded = inp.encode('ascii', 'ignore')
+    encoded = inp.encode('utf-8', 'ignore')
     decoded = encoded.decode("utf-8", "ignore")
     words = re.findall(r'\w+', inp)
     freq_map = defaultdict(int)
@@ -48,24 +48,25 @@ def test_output_word_count():
 
 
 if __name__ == "__main__":
-    print("\n\nDriver code for map_reduce running\n\n")
+    # print("\n\nDriver code for map_reduce running\n\n")
     config=configparser.ConfigParser()
     config.read('config.ini')
-    key_value_server=server()
-    executor=concurrent.futures.ProcessPoolExecutor()
-    key_value_server.port_setup(
-        int(config['app_config']['KeyValueServerPort']))
-    key_value_server.delete_full_cache('')
-    time.sleep(5)
-    server_process=executor.submit(key_value_server.server_loop)
-    # subprocess.run("python3 server_init.py",
-    #                shell=True, check=True)
-    # subprocess.run("python3 master_init.py",
-    #                shell=True, check=True)
-    master_map_reduce = map_reduce()
-    master_map_reduce.run_map_reduce()
+    # key_value_server=server()
+    # executor=concurrent.futures.ProcessPoolExecutor()
+    # key_value_server.port_setup(
+    #     int(config['app_config']['KeyValueServerPort']))
+    # key_value_server.delete_full_cache('')
+    # time.sleep(5)
+    # server_process=executor.submit(key_value_server.server_loop)
+    # # subprocess.run("python3 server_init.py",
+    # #                shell=True, check=True)
+    # # subprocess.run("python3 master_init.py",
+    # #                shell=True, check=True)
+    # master_map_reduce = map_reduce()
+    # master_map_reduce.run_map_reduce()
     # if config['app_config']['MapperCodeSerialized'] == 'mapper/word_count_mapper_serialized' and config['app_config']['ConductTest'] == "True":
     #     test_output_word_count()
     # if config['app_config']['MapperCodeSerialized']=='inverted_index_reducer_serialized' and config['app_config']['ConductTest'] == "True":
     # test_output_inverted_index()
-    None
+#     None
+    test_output_word_count()    
