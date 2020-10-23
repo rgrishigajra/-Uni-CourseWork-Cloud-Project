@@ -55,4 +55,4 @@ if __name__ == "__main__":
     print('\n\n\n Key Value Server Up\n\n\n')
     print('Booting master-map-reduce')
     boot_master_instance('master-map-reduce', 'master_starter.sh')
-    print('\n\n please run the following to ssh into the master-map-reduce','gcloud compute ssh master-map-reduce --zone=us-central1-a ')
+    print('\n\n please run the following to ssh into the master-map-reduce:\n','gcloud compute ssh master-map-reduce --zone=us-central1-a ')
