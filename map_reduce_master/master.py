@@ -80,7 +80,7 @@ class map_reduce:
     def moniter_mappers(self):
         # try:
         no_of_loops = 0
-        while no_of_loops < 20:
+        while no_of_loops < 100:
             time.sleep(23)
             no_of_loops += 1
             status_dict = defaultdict(str)
@@ -107,8 +107,10 @@ class map_reduce:
                         'mapper'+running_mapper[len(running_mapper)-1:])
                     self.boot_instance(
                         'mapper'+running_mapper[len(running_mapper)-1:], 'mapper_starter.sh')
-                    break
+                    # break
                 if status_dict[running_mapper] == 'assigned':
+                    self.LOG.log(50, 'Master found mapper %s is alive, waiting for it to finish' %
+                                 (running_mapper[len(running_mapper)-1:]))
                     self.master_client.set_key(running_mapper, 'check')
                 if status_dict[running_mapper] == 'idle':
                     self.LOG.log(50, 'Master found mapper % s idle, waiting for it to boot up' %
@@ -142,7 +144,7 @@ class map_reduce:
     def moniter_reducers(self):
         # try:
         no_of_loops = 0
-        while True:
+        while no_of_loops < 50:
             time.sleep(23)
             no_of_loops = 1
             status_dict = defaultdict(str)
@@ -157,24 +159,26 @@ class map_reduce:
                 print(key, status_dict[key])
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
-                         str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
+                         str(total_dict['assigned'])+' check:' + str(total_dict['check'])+' finished:'+str(total_dict['finished']))
             if total_dict['finished'] == int(self.config['app_config']['NumberOfReducers']):
                 break
-                # for running_reducer in status_dict.keys():
-                #     if status_dict[running_reducer] == 'assigned':
-                #         if total_dict['finished'] > int(self.config['app_config']['NumberOfReducers'])//2 and no_of_loops >= 8:
-                #             self.LOG.log(
-                #                 50, 'master spawned a new reducer with id '+str(running_reducer))
-                #             self.master_client.set_key(running_reducer, 'idle')
-                #         if no_of_loops >= 10:
-                #             self.master_client.set_key(running_reducer, 'idle')
-                #             self.LOG.log(
-                #                 50, 'master spawned a new reducer with id '+str(running_reducer))
-                #     if status_dict[running_reducer] == 'idle':
-                #         no_of_loops = 0
-                # r = reducer(running_reducer, '')
-                # self.reducer_pool.append(self.executor.submit(
-                #     r.get_reducer_data))
+            for running_reducer in status_dict.keys():
+                if status_dict[running_reducer] == 'check':
+                    self.LOG.log(50, 'Master found reducer %s inactive, booting new instance' %
+                                 (running_reducer[len(running_reducer)-1:]))
+                    self.master_client.set_key(running_reducer, 'idle')
+                    self.delete_instance(
+                        'reducer'+running_reducer[len(running_reducer)-1:])
+                    self.boot_instance(
+                        'reducer'+running_reducer[len(running_reducer)-1:], 'reducer_starter.sh')
+                    # break
+                if status_dict[running_reducer] == 'assigned':
+                    self.LOG.log(50, 'Master found reducer %s is alive, waiting for it to finish' %
+                                 (running_reducer[len(running_reducer)-1:]))
+                    self.master_client.set_key(running_reducer, 'check')
+                if status_dict[running_reducer] == 'idle':
+                    self.LOG.log(50, 'Master found reducer % s idle, waiting for it to boot up' %
+                                 (running_reducer[len(running_reducer)-1:]))
         # except Exception as e:
         #     self.LOG.log(30, e)
         self.LOG.log(50, 'Done for reducers')
