@@ -8,6 +8,7 @@ from map_reduce_master.master import map_reduce
 import time
 from collections import defaultdict
 import re
+import subprocess
 
 
 def test_output_word_count():
@@ -47,10 +48,21 @@ def test_output_word_count():
     return True
 
 
+def boot_master_instance(instance_name, startup_script):
+    command = "gcloud compute instances create %s --zone us-central1-a --machine-type=e2-micro --image=ubuntu-1804-bionic-v20201014 --image-project=ubuntu-os-cloud --boot-disk-size=10GB --scopes=compute-rw,storage-ro --metadata-from-file startup-script=%s --metadata NumberOfMappers=%s,NumberOfReducers=%s,MapperCodeSerialized=%s,ReducerCodeSerialized=%s,TestMapperFail=%s,TestReducerFail=%s" % (
+        instance_name, startup_script, config['app_config']['NumberOfMappers'], config['app_config']['NumberOfReducers'], config['app_config']['MapperCodeSerialized'], config['app_config']['ReducerCodeSerialized'], config['app_config']['TestMapperFail'], config['app_config']['TestReducerFail'])
+    try:
+        subprocess.run(command, shell=True, check=True)
+    except Exception as e:
+        print(e)
+    return True
+
+
 if __name__ == "__main__":
     # print("\n\nDriver code for map_reduce running\n\n")
-    config=configparser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read('config.ini')
+    boot_master_instance('master-map-reduce-try', 'master_starter.sh')
     # key_value_server=server()
     # executor=concurrent.futures.ProcessPoolExecutor()
     # key_value_server.port_setup(
@@ -69,4 +81,3 @@ if __name__ == "__main__":
     # if config['app_config']['MapperCodeSerialized']=='inverted_index_reducer_serialized' and config['app_config']['ConductTest'] == "True":
     # test_output_inverted_index()
 #     None
-    test_output_word_count()    

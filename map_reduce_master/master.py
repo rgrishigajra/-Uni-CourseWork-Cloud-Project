@@ -20,9 +20,9 @@ class map_reduce:
 
     def create_status_map(self):
         self.LOG.log(50, 'creating status map for mappers and reducers')
-        for i in range(int(self.config['app_config']['NumberOfMappers'])):
+        for i in range(int(self.get_config('NumberOfMappers'))):
             self.master_client.set_key('mapper_status'+str(i), 'idle')
-        for i in range(int(self.config['app_config']['NumberOfReducers'])):
+        for i in range(int(self.get_config('NumberOfReducers'))):
             self.master_client.set_key('reducer_status'+str(i), 'idle')
         return True
 
@@ -37,7 +37,7 @@ class map_reduce:
                     if line != '\n':
                         self.assign_mapper(mapper_iterator, file_no, line)
                         mapper_iterator = (
-                            mapper_iterator+1) % int(self.config['app_config']['NumberOfMappers'])
+                            mapper_iterator+1) % int(self.get_config('NumberOfMappers'))
                     line = doc.readline()
         self.LOG.log(50, 'Divided all loads successfully')
         return True
@@ -66,7 +66,7 @@ class map_reduce:
 
     def boot_mappers(self):
         self.LOG.log(50, 'Booting up mappers')
-        for i in range(int(self.config['app_config']['NumberOfMappers'])):
+        for i in range(int(self.get_config('NumberOfMappers'))):
             self.boot_instance('mapper'+str(i), 'mapper_starter.sh')
             # subprocess.run("python3 mapper_init.py",
             #                shell=True, check=True)
@@ -97,7 +97,7 @@ class map_reduce:
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' check:' + str(total_dict['check'])+' finished:'+str(total_dict['finished']))
-            if total_dict['finished'] == int(self.config['app_config']['NumberOfMappers']):
+            if total_dict['finished'] == int(self.get_config('NumberOfMappers')):
                 break
             for running_mapper in status_dict.keys():
                 if status_dict[running_mapper] == 'check':
@@ -122,14 +122,14 @@ class map_reduce:
         return True
 
     def delete_mappers(self):
-        for i in range(int(self.config['app_config']['NumberOfMappers'])):
+        for i in range(int(self.get_config('NumberOfMappers'))):
             self.delete_instance('mapper'+str(i))
         return True
 
     def boot_reducers(self):
         id = 0
         self.LOG.log(50, 'Booting up reducers')
-        for i in range(int(self.config['app_config']['NumberOfReducers'])):
+        for i in range(int(self.get_config('NumberOfReducers'))):
             self.boot_instance('reducer'+str(i), 'reducer_starter.sh')
             # subprocess.run("python3 reducer_init.py",
             #                shell=True, check=True)
@@ -161,7 +161,7 @@ class map_reduce:
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' check:' + str(total_dict['check'])+' finished:'+str(total_dict['finished']))
-            if total_dict['finished'] == int(self.config['app_config']['NumberOfReducers']):
+            if total_dict['finished'] == int(self.get_config('NumberOfReducers')):
                 break
             for running_reducer in status_dict.keys():
                 if status_dict[running_reducer] == 'check':
@@ -186,7 +186,7 @@ class map_reduce:
         return True
 
     def delete_reducers(self):
-        for i in range(int(self.config['app_config']['NumberOfReducers'])):
+        for i in range(int(self.get_config('NumberOfReducers'))):
             self.delete_instance('reducer'+str(i))
         return True
 
@@ -207,7 +207,7 @@ class map_reduce:
 
     def run_map_reduce(self):
         self.LOG.log(50, "Starting up map-reduce with " +
-                     self.config['app_config']['NumberOfMappers']+" mappers and "+self.config['app_config']['NumberOfReducers']+" reducers")
+                     self.get_config('NumberOfMappers')+" mappers and "+self.get_config('NumberOfReducers')+" reducers")
         self.create_status_map()
         self.divide_loads()
         self.boot_mappers()
@@ -243,17 +243,17 @@ class map_reduce:
         self.master_client.delete_all()
         try:
             self.master_client.set_key(
-                'NumberOfMappers', get_config('NumberOfMappers'))
+                'NumberOfMappers', self.get_config('NumberOfMappers'))
             self.master_client.set_key(
-                'NumberOfReducers', get_config('NumberOfReducers'))
+                'NumberOfReducers', self.get_config('NumberOfReducers'))
             self.master_client.set_key(
-                'MapperCodeSerialized', get_config('MapperCodeSerialized'))
+                'MapperCodeSerialized', self.get_config('MapperCodeSerialized'))
             self.master_client.set_key(
-                'ReducerCodeSerialized', get_config('ReducerCodeSerialized'))
+                'ReducerCodeSerialized', self.get_config('ReducerCodeSerialized'))
             self.master_client.set_key(
-                'TestMapperFail', get_config('TestMapperFail'))
+                'TestMapperFail', self.get_config('TestMapperFail'))
             self.master_client.set_key(
-                'TestReducerFail', get_config('TestReducerFail'))
+                'TestReducerFail', self.get_config('TestReducerFail'))
         except:
             self.LOG.log(50, 'error while getting meta data')
         return
