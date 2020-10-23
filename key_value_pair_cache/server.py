@@ -50,7 +50,7 @@ class server:
         for key in self.key_value.keys():
             if message_args[1] == key[:len(message_args[1])]:
                 l += (key+' ')
-        resp = 'KEYS ' + str(len(l.encode())) + \
+        resp = 'KEYS ' + str(len(l.encode("utf-8", "ignore"))) + \
             ' \r\n' + str(l)+' \r\n' + "END\r\n"
         return resp
 
@@ -214,7 +214,7 @@ class server:
                 return
             self.LOG.log(20, "client message received!")
             self.LOG.log(10, client_message[:30])
-            client_msg_new_line_sep = client_message.decode().split(" \r\n")
+            client_msg_new_line_sep = client_message.decode("utf-8", "ignore").split(" \r\n")
             client_msg_args = client_msg_new_line_sep[0].split(' ')
             client_msg_args.append(client_msg_new_line_sep[1])
             try:
@@ -224,11 +224,11 @@ class server:
             except KeyError as e:
                 self.LOG.log(
                     40, "Bad request from the client, function does not exist")
-                result = 'INVALID REQUEST\r\n'
+                result = 'VALUE 20  \r\INVALID \r\nEND\r\n'
             server_message = result.encode('utf-8', 'ignore')
             # if len(server_message) > 4096:
             #     msg_warning = 'MULTIMSG ' + str(len(server_message))
-            #     connection_socket.send(msg_warning.encode())
+            #     connection_socket.send(msg_warning.encode("utf-8", "ignore"))
             #     itr = 0
             #     while itr < len(server_message):
             #         connection_socket.send(server_message[itr:itr+4096])
