@@ -214,4 +214,16 @@ class map_reduce:
         self.reducer_pool = []
         self.executor = concurrent.futures.ProcessPoolExecutor()
         self.master_client.delete_all()
+        self.master_client.set_key(
+            'NumberOfMappers', self.config['app_config']['NumberOfMappers'])
+        self.master_client.set_key(
+            'NumberOfReducers', self.config['app_config']['NumberOfReducers'])
+        self.master_client.set_key(
+            'MapperCodeSerialized', self.config['app_config']['MapperCodeSerialized'])
+        self.master_client.set_key(
+            'ReducerCodeSerialized', self.config['app_config']['ReducerCodeSerialized'])
+        self.master_client.set_key(
+            'TestMapperFail', self.config['app_config']['TestMapperFail'])
+        self.master_client.set_key(
+            'TestReducerFail', self.config['app_config']['TestReducerFail'])
         return

@@ -122,18 +122,18 @@ class mapper:
         self.mapper_name = mapper_name
         self.mapper_client = client(str(self.config['app_config']['KeyValueServerIP']),
                                     int(self.config['app_config']['KeyValueServerPort']))
-        self.mapper_id = self.get_mapper_id()
-        heartbeat_thread = threading.Thread(
-            target=self.send_heartbeat, args=(), daemon=True)
-        heartbeat_thread.start()
-        self.mapper_clean_files()
         self.number_of_mappers = int(self.mapper_client.get_key(
             'NumberOfMappers').split(' ')[2])
         self.number_of_reducers = int(self.mapper_client.get_key(
             'NumberOfReducers').split(' ')[2])
         self.mapper_code_serialized = self.mapper_client.get_key(
             'MapperCodeSerialized').split(' ')[2]
+        self.mapper_id = self.get_mapper_id()
         self.LOG.log(50, "Booting up map-reduce mapper with id " +
                      str(self.mapper_id))
+        heartbeat_thread = threading.Thread(
+            target=self.send_heartbeat, args=(), daemon=True)
+        heartbeat_thread.start()
+        self.mapper_clean_files()
         self.LOG.log(50, 'mapper '+str(self.mapper_id)+" intialized")
         return

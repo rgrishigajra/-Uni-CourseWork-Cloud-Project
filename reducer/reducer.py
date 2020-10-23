@@ -124,11 +124,6 @@ class reducer:
         self.reducer_name = reducer_name
         self.reducer_client = client(str(self.config['app_config']['KeyValueServerIP']),
                                      int(self.config['app_config']['KeyValueServerPort']))
-        self.reducer_id = self.get_reducer_id()
-        heartbeat_thread = threading.Thread(
-            target=self.send_heartbeat, args=(), daemon=True)
-        heartbeat_thread.start()
-        self.reducer_clean_files()
         self.number_of_mappers = int(self.reducer_client.get_key(
             'NumberOfMappers').split(' ')[2])
         self.number_of_reducers = int(self.reducer_client.get_key(
@@ -137,7 +132,10 @@ class reducer:
             'ReducerCodeSerialized').split(' ')[2]
         self.LOG.log(50, "Booting up map-reduce mapper with id " +
                      str(self.mapper_id))
-        self.LOG.log(50, "Booting up map-reduce reducer with id " +
-                     str(self.reducer_id))
+        self.reducer_id = self.get_reducer_id()
+        heartbeat_thread = threading.Thread(
+            target=self.send_heartbeat, args=(), daemon=True)
+        heartbeat_thread.start()
+        self.reducer_clean_files()
         self.LOG.log(50, 'reducer '+str(self.reducer_id)+" intialized")
         return
