@@ -194,11 +194,14 @@ class server:
                 self.file_value[self.key_value[message_args[1]]] = value
             else:
                 value = self.file_value[self.key_value[message_args[1]]]
-        length = len(value.encode('ascii', 'ignore')) + \
-            len('VALUE ')+len(' \r\n')*2+len("END\r\n")
+        length = len(value.encode('utf-8', 'ignore')) + \
+            len('VALUE ')+len(' \r\n')*2+len("END\r\n") + \
+            len(str(message_args[1]).encode('utf-8', 'ignore'))
+        length += len(str(length).encode('utf-8', 'ignore'))+1
         resp = 'VALUE ' + \
             str(message_args[1])+' ' + str(length) + \
             ' \r\n' + str(value)+' \r\n' + "END\r\n"
+        self.LOG.log(50, 'sent lines with len %d' % (length))
         return resp
 
 # This is the worker thread that is spawned by the server process to serve the client parallely.
@@ -222,7 +225,7 @@ class server:
                 self.LOG.log(
                     40, "Bad request from the client, function does not exist")
                 result = 'INVALID REQUEST\r\n'
-            server_message = result.encode('ascii', 'ignore')
+            server_message = result.encode('utf-8', 'ignore')
             # if len(server_message) > 4096:
             #     msg_warning = 'MULTIMSG ' + str(len(server_message))
             #     connection_socket.send(msg_warning.encode())

@@ -194,14 +194,14 @@ class map_reduce:
     def run_map_reduce(self):
         self.LOG.log(50, "Starting up map-reduce with " +
                      self.config['app_config']['NumberOfMappers']+" mappers and "+self.config['app_config']['NumberOfReducers']+" reducers")
-        # self.create_status_map()
-        # self.divide_loads()
-        # self.boot_mappers()
-        # self.moniter_mappers()
-        # self.delete_mappers()
-        # self.boot_reducers()
-        # self.moniter_reducers()
-        # self.delete_reducers()
+        self.create_status_map()
+        self.divide_loads()
+        self.boot_mappers()
+        self.moniter_mappers()
+        self.delete_mappers()
+        self.boot_reducers()
+        self.moniter_reducers()
+        self.delete_reducers()
         self.get_output()
         return True
 
@@ -212,11 +212,5 @@ class map_reduce:
         self.mapper_pool = []
         self.reducer_pool = []
         self.executor = concurrent.futures.ProcessPoolExecutor()
-        # self.master_client.delete_all()
-        # while True:
-        #     if not self.master_client.ping_server():
-        #         self.LOG.log(50, 'key-value is store offline')
-        #         time.sleep(10)
-        #     else:
-        #         break
+        self.master_client.delete_all()
         return

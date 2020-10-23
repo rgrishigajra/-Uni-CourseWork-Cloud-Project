@@ -103,7 +103,9 @@ class mapper:
 
     def send_heartbeat(self):
         while self.finished_checker:
-            self.mapper_client.set_key(
+            heart_beat_client = client(str(self.config['app_config']['KeyValueServerIP']),
+                                       int(self.config['app_config']['KeyValueServerPort']))
+            heart_beat_client.set_key(
                 'mapper_status'+str(self.mapper_id), 'assigned')
             time.sleep(7)
         return True

@@ -76,25 +76,23 @@ class client:
             self.LOG.log(20, 'Client sent a get lines for %s request!' % (key))
             server_output = self.client_socket.recv(4096)
             decoded_msg = server_output.decode()
-            self.LOG.log(20, 'Client got  %s ' % (decoded_msg))
+            self.LOG.log(10, 'Client got  %s ' % (decoded_msg))
             # if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
             #     return decoded_msg
-            value_len = len(decoded_msg)
+            value_len = len(server_output)
             value_len_given_by_server = int(decoded_msg.split(' ')[2])
             self.LOG.log(20, 'Get lines left for request: %d - %d' %
                          (value_len_given_by_server, value_len))
             while value_len_given_by_server > value_len:
-                if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
-                    break
-                server_output = self.client_socket.recv(
+                server_output += self.client_socket.recv(
                     min(4096, value_len_given_by_server-value_len))
-                decoded_msg += server_output.decode("utf-8", "ignore")
                 value_len += min(4096, value_len_given_by_server-value_len)
+            decoded_msg = server_output.decode("utf-8", "ignore")
             return decoded_msg
         except Exception as e:
             self.LOG.exception(e)
             print(e)
-        return True
+        return ''
 # sends a get request by sending a key in required format
 
     def get_key(self, key):
