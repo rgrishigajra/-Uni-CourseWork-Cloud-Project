@@ -27,7 +27,7 @@ class mapper:
             for list_item in mapper_output:
                 # hashing to assign to a reducer
                 reducer_id = int(fnv1a_32(list_item[0])) % int(
-                    (self.config['app_config']['NumberOfReducers']))
+                    self.number_of_reducers)
                 msg_key = "reducer"+str(reducer_id) + \
                     "mapper"+str(self.mapper_id)
                 msg_val = str(list_item[0]+" "+str(list_item[1])+"\n")
@@ -43,13 +43,13 @@ class mapper:
         try:
             self.LOG.log(
                 50, 'Running supplied mapper on worker '+str(self.mapper_id))
-            # with open(self.config['app_config']['MapperCodeSerialized'], 'rb') as fd:
-            #     code_string = fd.read()
-            #     code = marshal.loads(code_string)
-            #     user_defined_map_function = types.FunctionType(
-            #         code, globals(), "user_defined_map_function"+str(self.mapper_id))
-            # mapper_output = user_defined_map_function(key, value)
-            mapper_output = word_count_mapper(key, value)
+            with open(self.mapper_code_serialized, 'rb') as fd:
+                code_string = fd.read()
+                code = marshal.loads(code_string)
+                user_defined_map_function = types.FunctionType(
+                    code, globals(), "user_defined_map_function"+str(self.mapper_id))
+            mapper_output = user_defined_map_function(key, value)
+            # mapper_output = word_count_mapper(key, value)
             self.LOG.log(50, 'Mapper '+str(self.mapper_id) +
                          " has run mapper function")
             return mapper_output
@@ -59,8 +59,6 @@ class mapper:
 
     def get_mapper_data(self):
         try:
-            # self.mapper_id = self.mapper_client.get_assignment(
-            #     self.mapper_name, self.mapper_port)
             keys = self.mapper_client.get_keys("mapper"+str(self.mapper_id))
             data = []
             for key in keys:
@@ -76,7 +74,7 @@ class mapper:
                     key_value_pair[0], key_value_pair[1])
                 # gets a list of (key,value) pairs, storing it in kay value store for each reducer
                 self.send_mapper_output(mapper_output)
-            if random.randrange(int(self.config['app_config']['NumberOfMappers'])+1) == int(self.config['app_config']['NumberOfMappers']) and self.config['app_config']['TestMapperFail'] == "True":
+            if random.randrange(int(self.number_of_mappers + 1)) == int(self.number_of_mappers) and self.config['app_config']['TestMapperFail'] == "True":
                 self.LOG.log(30, "Creating an exception in mapper " +
                              str(self.mapper_id)+" for testing")
                 raise Exception
@@ -113,7 +111,7 @@ class mapper:
     def mapper_clean_files(self):
         self.LOG.log(
             50, 'Cleaning previous files for mapper %d' % (self.mapper_id))
-        for reducer_id in range(int(self.config['app_config']['NumberOfReducers'])):
+        for reducer_id in range(int(self.number_of_reducers)):
             msg_key = "reducer"+str(reducer_id)+"mapper"+str(self.mapper_id)
             self.mapper_client.clean_file_by_line(msg_key)
         return True
@@ -129,13 +127,13 @@ class mapper:
             target=self.send_heartbeat, args=(), daemon=True)
         heartbeat_thread.start()
         self.mapper_clean_files()
-        # self.send_heartbeat()
+        self.number_of_mappers = int(self.mapper_client.get_key(
+            'NumberOfMappers').split(' ')[2])
+        self.number_of_reducers = int(self.mapper_client.get_key(
+            'NumberOfReducers').split(' ')[2])
+        self.mapper_code_serialized = self.mapper_client.get_key(
+            'MapperCodeSerialized').split(' ')[2]
         self.LOG.log(50, "Booting up map-reduce mapper with id " +
                      str(self.mapper_id))
-
-        # if not self.mapper_client.ping_server():
-        #     self.LOG.log(50, 'key-value is store offline')
-        #     exit()
         self.LOG.log(50, 'mapper '+str(self.mapper_id)+" intialized")
-        # self.map()
         return

@@ -39,13 +39,13 @@ class reducer:
         try:
             self.LOG.log(
                 50, 'Running supplied reducer on worker '+str(self.reducer_id))
-            # with open(self.config['app_config']['ReducerCodeSerialized'], 'rb') as fd:
-            #     code_string = fd.read()
-            #     code = marshal.loads(code_string)
-            #     user_defined_reduce_function = types.FunctionType(
-            #         code, globals(), "user_defined_reducer_function"+str(self.reducer_id))
-            reducer_output = word_count_reducer(input_list)
-            # reducer_output = user_defined_reduce_function(input_list)
+            with open(self.reducer_code_serialized, 'rb') as fd:
+                code_string = fd.read()
+                code = marshal.loads(code_string)
+                user_defined_reduce_function = types.FunctionType(
+                    code, globals(), "user_defined_reducer_function"+str(self.reducer_id))
+            # reducer_output = word_count_reducer(input_list)
+            reducer_output = user_defined_reduce_function(input_list)
             self.LOG.log(50, 'Reducer '+str(self.reducer_id) +
                          " has run reducer function")
             return reducer_output
@@ -73,7 +73,7 @@ class reducer:
                 # runs serial reducer script
                 reducer_output = self.run_serialized_reducer(input_list)
                 self.send_reducer_output(reducer_output)
-            if random.randrange(int(self.config['app_config']['NumberOfReducers'])+1) == int(self.config['app_config']['NumberOfReducers']) and self.config['app_config']['TestReducerFail'] == "True":
+            if random.randrange(int(self.number_of_reducers)+1) == int(self.number_of_reducers) and self.config['app_config']['TestReducerFail'] == "True":
                 self.LOG.log(30, "Creating an exception in reducer " +
                              str(self.reducer_id)+" for testing")
                 raise Exception
@@ -129,12 +129,15 @@ class reducer:
             target=self.send_heartbeat, args=(), daemon=True)
         heartbeat_thread.start()
         self.reducer_clean_files()
+        self.number_of_mappers = int(self.reducer_client.get_key(
+            'NumberOfMappers').split(' ')[2])
+        self.number_of_reducers = int(self.reducer_client.get_key(
+            'NumberOfReducers').split(' ')[2])
+        self.reducer_code_serialized = self.reducer_client.get_key(
+            'ReducerCodeSerialized').split(' ')[2]
+        self.LOG.log(50, "Booting up map-reduce mapper with id " +
+                     str(self.mapper_id))
         self.LOG.log(50, "Booting up map-reduce reducer with id " +
                      str(self.reducer_id))
-
-        # if not self.reducer_client.ping_server():
-        #     self.LOG.log(50, 'key-value is store offline')
-        #     exit()
         self.LOG.log(50, 'reducer '+str(self.reducer_id)+" intialized")
-        # self.map()
         return
