@@ -88,11 +88,11 @@ class map_reduce:
             self.LOG.log(
                 50, 'master checking mapper health, heartbeat:' + str(no_of_loops))
             keys = self.master_client.get_keys('mapper_status')
-            print('key', keys)
+            # print('key', keys)
             for key in keys:
                 val = self.master_client.get_key(key)
                 status_dict[key] = val.split(' \r\n')[1]
-                print(key, status_dict[key])
+                # print(key, status_dict[key])
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' check:' + str(total_dict['check'])+' finished:'+str(total_dict['finished']))
@@ -152,11 +152,11 @@ class map_reduce:
             self.LOG.log(
                 50, 'master checking reducer health, heartbeat:' + str(no_of_loops))
             keys = self.master_client.get_keys('reducer_status')
-            print('keys', keys)
+            # print('keys', keys)
             for key in keys:
                 val = self.master_client.get_key(key)
                 status_dict[key] = val.split(' \r\n')[1]
-                print(key, status_dict[key])
+                # print(key, status_dict[key])
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
                          str(total_dict['assigned'])+' check:' + str(total_dict['check'])+' finished:'+str(total_dict['finished']))
