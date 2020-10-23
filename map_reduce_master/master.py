@@ -44,13 +44,23 @@ class map_reduce:
     def boot_instance(self, instance_name, startup_script):
         command = "gcloud compute instances create %s --zone us-central1-a --machine-type=e2-micro --image=ubuntu-1804-bionic-v20201014 --image-project=ubuntu-os-cloud --boot-disk-size=10GB --metadata-from-file startup-script=%s" % (
             instance_name, startup_script)
-        subprocess.run(command, shell=True, check=True)
+        try:
+            subprocess.run(command, shell=True, check=True)
+        except Exception as e:
+            self.LOG.log(50, 'exception while booting instance %s' %
+                         (instance_name))
+            self.LOG.log(30, e)
         return True
 
     def delete_instance(self, instance_name):
         command = "gcloud compute instances delete %s  --zone us-central1-a --quiet" % (
             instance_name)
-        subprocess.run(command, shell=True, check=True)
+        try:
+            subprocess.run(command, shell=True, check=True)
+        except Exception as e:
+            self.LOG.log(50, 'exception while deleting instance %s' %
+                         (instance_name))
+            self.LOG.log(30, e)
         return True
 
     def boot_mappers(self):
@@ -70,8 +80,8 @@ class map_reduce:
     def moniter_mappers(self):
         # try:
         no_of_loops = 0
-        while True:
-            time.sleep(13)
+        while no_of_loops < 20:
+            time.sleep(23)
             no_of_loops += 1
             status_dict = defaultdict(str)
             total_dict = defaultdict(int)
@@ -85,26 +95,24 @@ class map_reduce:
                 print(key, status_dict[key])
                 total_dict[val.split(' \r\n')[1]] += 1
             self.LOG.log(50, 'idle:' + str(total_dict['idle'])+' assigned:' +
-                         str(total_dict['assigned'])+' finished:'+str(total_dict['finished']))
+                         str(total_dict['assigned'])+' check:' + str(total_dict['check'])+' finished:'+str(total_dict['finished']))
             if total_dict['finished'] == int(self.config['app_config']['NumberOfMappers']):
                 break
-            # for running_mapper in status_dict.keys():
-                #     if status_dict[running_mapper] == 'assigned':
-                #         if total_dict['finished'] > int(self.config['app_config']['NumberOfMappers'])//2 and no_of_loops >= 18:
-                #             self.master_client.set_key(
-                #                 running_mapper, 'idle')
-                #             self.LOG.log(
-                #                 50, 'master spawned a new mapper with id '+str(running_mapper))
-                #         if no_of_loops >= 20:
-                #             self.LOG.log(
-                #                 50, 'master spawned a new mapper with id '+str(running_mapper))
-                #             self.master_client.set_key(
-                #                 running_mapper, 'idle')
-                #     if status_dict[running_mapper] == 'idle':
-                #         no_of_loops = 0
-                # m = mapper(running_mapper, '')
-                # self.mapper_pool.append(self.executor.submit(
-                #     m.get_mapper_data))
+            for running_mapper in status_dict.keys():
+                if status_dict[running_mapper] == 'check':
+                    self.LOG.log(50, 'Master found mapper %s inactive, booting new instance' %
+                                 (running_mapper[len(running_mapper)-1:]))
+                    self.master_client.set_key(running_mapper, 'idle')
+                    self.delete_instance(
+                        'mapper'+running_mapper[len(running_mapper)-1:])
+                    self.boot_instance(
+                        'mapper'+running_mapper[len(running_mapper)-1:], 'mapper_starter.sh')
+                    break
+                if status_dict[running_mapper] == 'assigned':
+                    self.master_client.set_key(running_mapper, 'check')
+                if status_dict[running_mapper] == 'idle':
+                    self.LOG.log(50, 'Master found mapper % s idle, waiting for it to boot up' %
+                                 (running_mapper[len(running_mapper)-1:]))
         # except Exception as e:
         #     self.LOG.log(30, e)
         self.LOG.log(50, 'Done for mappers')
@@ -135,7 +143,7 @@ class map_reduce:
         # try:
         no_of_loops = 0
         while True:
-            time.sleep(13)
+            time.sleep(23)
             no_of_loops = 1
             status_dict = defaultdict(str)
             total_dict = defaultdict(int)
