@@ -186,6 +186,7 @@ class map_reduce:
             for key in keys:
                 data = self.master_client.get_key_lines(key)
                 kay_val_split_msg = data.split(' \r\n')
+                # if len(kay_val_split_msg) > 1:
                 fd.write(kay_val_split_msg[1])
         self.LOG.log(50, 'final answer dumped into file ' +
                      str(self.config['app_config']['OutputFile']))

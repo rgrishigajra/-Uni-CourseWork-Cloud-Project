@@ -32,7 +32,8 @@ class client:
     def append_key(self, key, value):
         try:
             client_message = 'append ' + key + ' ' + \
-                str(len(value.encode("utf-8", "ignore")))+' \r\n' + value + '\r\n'
+                str(len(value.encode("utf-8", "ignore"))) + \
+                ' \r\n' + value + '\r\n'
             self.client_socket.send(client_message.encode("utf-8", "ignore"))
             self.LOG.log(10, 'Client sent a append request!')
             server_output = self.client_socket.recv(4096)
@@ -45,7 +46,8 @@ class client:
     def set_key(self, key, value):
         try:
             client_message = 'set ' + key + ' ' + \
-                str(len(value.encode("utf-8", "ignore")))+' \r\n' + value + '\r\n'
+                str(len(value.encode("utf-8", "ignore"))) + \
+                ' \r\n' + value + '\r\n'
             self.client_socket.send(client_message.encode("utf-8", "ignore"))
             self.LOG.log(10, 'Client sent a set request!')
             server_output = self.client_socket.recv(4096)
@@ -77,8 +79,6 @@ class client:
             server_output = self.client_socket.recv(4096)
             decoded_msg = server_output.decode("utf-8", "ignore")
             self.LOG.log(20, 'Client got  %s ' % (decoded_msg))
-            # if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
-            #     return decoded_msg
             value_len = len(server_output)
             value_len_given_by_server = int(decoded_msg.split(' ')[2])
             self.LOG.log(20, 'Get lines left for request: %d - %d' %
@@ -86,8 +86,10 @@ class client:
             while value_len_given_by_server > value_len:
                 server_output += self.client_socket.recv(
                     min(4096, value_len_given_by_server-value_len))
-                value_len += min(4096, value_len_given_by_server-value_len)
-            decoded_msg = server_output.decode("utf-8", "ignore")
+                value_len = len(server_output)
+                decoded_msg = server_output.decode("utf-8", "ignore")
+                if decoded_msg[len(decoded_msg)-len('END\r\n'):] == 'END\r\n':
+                    break
             return decoded_msg
         except Exception as e:
             self.LOG.exception(e)
