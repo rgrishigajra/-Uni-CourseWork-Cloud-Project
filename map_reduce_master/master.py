@@ -207,15 +207,15 @@ class map_reduce:
     def run_map_reduce(self):
         self.LOG.log(50, "Starting up map-reduce with " +
                      self.config['app_config']['NumberOfMappers']+" mappers and "+self.config['app_config']['NumberOfReducers']+" reducers")
-        # self.create_status_map()
-        # self.divide_loads()
+        self.create_status_map()
+        self.divide_loads()
         self.boot_mappers()
-        # self.moniter_mappers()
-        # self.delete_mappers()
-        # self.boot_reducers()
-        # self.moniter_reducers()
-        # self.delete_reducers()
-        # self.get_output()
+        self.moniter_mappers()
+        self.delete_mappers()
+        self.boot_reducers()
+        self.moniter_reducers()
+        self.delete_reducers()
+        self.get_output()
         return True
 
     def get_server_ip(self):
