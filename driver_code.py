@@ -68,4 +68,5 @@ if __name__ == "__main__":
     print('\n\n please run the following to ssh into the master-map-reduce:\n',
           'gcloud compute ssh master-map-reduce --zone=us-central1-a ')
     print("you can see your gcloud VM dashbaord to see all the instances being created")
-    print('you can view the output at:'+get_master_ip()+":5000 once its done")
+    print('you can view the output at:'+get_master_ip()+":5000 once its done, give it 5 minutes to render a blank page")
+
