@@ -45,7 +45,8 @@ gcloud compute ssh master-map-reduce --zone=us-central1-a
 ```
 4. If you did not automate it run this to start master job. (Uni-CourseWork-Cloud-Project is in root directory)
 ``` bash
-sudo python3 /Uni-CourseWork-Cloud-Project/master_init.py 
+cd /Uni-CourseWork-Cloud-Project/
+sudo python3 master_init.py 
 ```
 5. open output.txt once the server finishes, this is the output.
 6. close the ssh and run this delete all resources including master and key-value server.
@@ -175,69 +176,19 @@ How each component communicates with key value server :
  - stores output in key value store.
  - updates status in key value store as it progresses
 
-# Test Cases: 
+# Test Cases: (logs show me using preemptible vms)
 Full logs attached in logs folder for these test cases!
-1) 1 mapper 1 reducer 1 file inverted_index:
-logs
-![image](https://user-images.githubusercontent.com/25266353/95808869-6bbf4380-0cdb-11eb-9c72-46f905be6a63.png)
-> output.txt
-```txt
-is file1:25
-line file1:25
-this file1:25
-```
-
-2) 1 mapper 1 reducer 1 file word_count:
-logs
-![image](https://user-images.githubusercontent.com/25266353/95809198-36672580-0cdc-11eb-8a63-be8586d06a71.png)
-> output.txt
-```txt
-is 25
-line 25
-this 25
-```
 
 
-3) 3 mapper 3 reducer 3 files word_count (huge files, 45k lines total) Takes:
+1) 3 mapper 3 reducer 3 files word_count (huge files, 45k lines total) Takes 10 minutes:
 logs
-![image](https://user-images.githubusercontent.com/25266353/95809577-1f750300-0cdd-11eb-9289-65cccfcd0a01.png)
-![image](https://user-images.githubusercontent.com/25266353/95809603-2dc31f00-0cdd-11eb-95a7-6f34c785bc80.png)
-output
-```txt
-amount 4
-amputate 1
-amusement 6
-amusements 2
-amusing 2
-an 390
-........
-```
-4) 3 mapper 3 reducer 3 files inverted_index (huge files, 45k lines total):
-logs
-![image](https://user-images.githubusercontent.com/25266353/95810589-4f250a80-0cdf-11eb-968e-cc73af12becd.png)
-![image](https://user-images.githubusercontent.com/25266353/95810635-6e239c80-0cdf-11eb-85d0-ee2434436ee7.png)
 
-
-output
-```txt
-along file1:2,file2:77,file3:2
-alpha file3:1
-also file1:13,file2:1,file3:116
-alter file2:1,file3:2
-alteration file1:3,file3:1
-alternative file1:1,file3:1
-........
-```
-5) 4 mapper 5 reducer 3 files word_count (huge files, 45k lines total): 
-***WITH FAILING MAPPERS AND REDUCERS,option in config file***
-logs
-![image](https://user-images.githubusercontent.com/25266353/95812316-1b4be400-0ce3-11eb-89e5-89778d4f756c.png)
-1 mapper stopped working:
-![image](https://user-images.githubusercontent.com/25266353/95812375-3f0f2a00-0ce3-11eb-9ca5-8410e5e619bd.png)
-Master detects it and creates new mapper
-![image](https://user-images.githubusercontent.com/25266353/95812426-5ea65280-0ce3-11eb-9b0c-d5602447ebd5.png)
-Finish:
-![image](https://user-images.githubusercontent.com/25266353/95812464-7978c700-0ce3-11eb-9385-38206c716be2.png)
+![image](https://user-images.githubusercontent.com/25266353/97066055-ead83580-157f-11eb-834f-0e448193822b.png)
+![image](https://user-images.githubusercontent.com/25266353/97066067-19eea700-1580-11eb-890b-99739bdd0d7f.png)
+![image](https://user-images.githubusercontent.com/25266353/97065961-30483300-157f-11eb-8b59-325744fa0c40.png)
+![image](https://user-images.githubusercontent.com/25266353/97066026-b5cbe300-157f-11eb-8aa8-dd8f46063dcc.png)
+cloud logs 
+![image](https://user-images.githubusercontent.com/25266353/97066171-4525c600-1581-11eb-8dfb-0ab11a83cbd2.png)
 
 
 output
@@ -250,16 +201,12 @@ amusing 2
 an 390
 ........
 ```
-6) 4 mapper 5 reducer 3 files inverted_index (huge files, 45k lines total):
-***WITH FAILING MAPPERS AND REDUCERS,option in config file***
+2) 3 mapper 3 reducer 3 files inverted_index (huge files, 45k lines total):
 logs
-![image](https://user-images.githubusercontent.com/25266353/95810927-1df90a00-0ce0-11eb-9aa2-86cb61d0acd4.png)
-Two reducers failed! 
-![image](https://user-images.githubusercontent.com/25266353/95811459-5a793580-0ce1-11eb-993a-6f126cd59e60.png)
-master detects and spawns two reducers!
-![image](https://user-images.githubusercontent.com/25266353/95811580-97452c80-0ce1-11eb-94ad-7832c8e697d4.png)
-finished despite two failures(they were forced)
-![image](https://user-images.githubusercontent.com/25266353/95811642-bcd23600-0ce1-11eb-93a9-d3d621893794.png)
+![image](https://user-images.githubusercontent.com/25266353/97066183-566ed280-1581-11eb-9ea3-74f78d76b2d2.png)
+![image](https://user-images.githubusercontent.com/25266353/97066225-aea5d480-1581-11eb-8424-12f93496473e.png)
+![image](https://user-images.githubusercontent.com/25266353/97066246-e7de4480-1581-11eb-962a-d7ee743f8708.png)
+
 
 output
 ```txt
@@ -271,7 +218,63 @@ alteration file1:3,file3:1
 alternative file1:1,file3:1
 ........
 ```
-# Key Challenges:
+3) 4 mapper 3 reducer 3 files inverted_index (huge files, 45k lines total) (20 mins due to VM forced failures): 
+***killing mappers and reducer instances***
+logs
+![image](https://user-images.githubusercontent.com/25266353/97066472-d6963780-1583-11eb-988a-b49e64d92d4b.png)
+
+ mapper3 stopped:
+ ![image](https://user-images.githubusercontent.com/25266353/97066512-34c31a80-1584-11eb-9d8e-baad86c4726b.png)
+master notices and deletes the stopped vm first if it exists and then creates a new VM
+ ![image](https://user-images.githubusercontent.com/25266353/97066492-f88fba00-1583-11eb-9610-5c4935ef0641.png)
+ Mapping still finishes and reducers are spawned
+ ![image](https://user-images.githubusercontent.com/25266353/97066576-879cd200-1584-11eb-8016-dd17e556592c.png)
+
+Reducer VM stopped :
+![image](https://user-images.githubusercontent.com/25266353/97066709-91730500-1585-11eb-99c7-84b104b4bfa0.png)
+![image](https://user-images.githubusercontent.com/25266353/97066750-eb73ca80-1585-11eb-95fe-ca54c72e1251.png)
+![image](https://user-images.githubusercontent.com/25266353/97066771-08100280-1586-11eb-9320-14ad456ebb28.png)
+Master notices and starts new reducer 2:
+![image](https://user-images.githubusercontent.com/25266353/97066795-3261c000-1586-11eb-81b6-9e210e256baf.png)
+![image](https://user-images.githubusercontent.com/25266353/97066899-971d1a80-1586-11eb-9585-69a7fff6caba.png)
+
+
+output
+```txt
+along file1:2,file2:77,file3:2
+alpha file3:1
+also file1:13,file2:1,file3:116
+alter file2:1,file3:2
+alteration file1:3,file3:1
+alternative file1:1,file3:1
+........
+```
+4) 3 mapper 2 reducer 3 files word count (huge files, 45k lines total) (20 mins due to VM forced failures): 
+***killing mappers and reducer instances***:
+logs
+start
+![image](https://user-images.githubusercontent.com/25266353/97067125-78b81e80-1588-11eb-8889-c8e80a1b5981.png)
+stopping the mapper 2 and the master does a reboot and mapper work still finsihes:
+![image](https://user-images.githubusercontent.com/25266353/97067168-c6348b80-1588-11eb-903c-9cff3105ed43.png)
+![image](https://user-images.githubusercontent.com/25266353/97067187-fed46500-1588-11eb-9a55-a7a6532db501.png)
+rest of the logs
+![image](https://user-images.githubusercontent.com/25266353/97067267-b8333a80-1589-11eb-875f-cc28e3096015.png)
+![image](https://user-images.githubusercontent.com/25266353/97067313-1a8c3b00-158a-11eb-8908-b79705dc5bc6.png)
+
+
+output
+```txt
+along file1:2,file2:77,file3:2
+alpha file3:1
+also file1:13,file2:1,file3:116
+alter file2:1,file3:2
+alteration file1:3,file3:1
+alternative file1:1,file3:1
+........
+```
+# Key Challenges and interesting test case:
+## imporvements:
+My design assumes that workers will only fail after they boot up and tell the master they have started, if they fail at boot up, master will just keep waiting thinking the worker is booting up. 
 ### The hashing: (this is from previous assignment, helped me here!)
 The hashing at first might look like a needless complexity. But it simplifies the file name generating and it gives both the uniqueness a UUID name generator would provide but also a logical link that you can generate it any time you get the key. This would also generalize file name lengths to a good level.
 **So, Which hashing function and why?**
@@ -362,12 +365,6 @@ Getting to specifics for this assignment:
  - Master creates M number of files, same as number of mappers. 
  - Each Mapper creates R number of files, R is number of reducers. Total: M * R
  - Each reducer creates 1 output, total: R
-
-
-
-
-
-
 
 
 
