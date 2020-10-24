@@ -1,0 +1,87 @@
+2020-10-24 02:36:28,699 - map-reduce master - CRITICAL - Booting up map-reduce master
+2020-10-24 02:36:32,257 - map-reduce master - CRITICAL - NumberOfMappers : 3
+2020-10-24 02:36:32,264 - map-reduce master - CRITICAL - NumberOfReducers : 3
+2020-10-24 02:36:32,266 - map-reduce master - CRITICAL - MapperCodeSerialized : mapper/inverted_index_mapper_serialized
+2020-10-24 02:36:32,268 - map-reduce master - CRITICAL - ReducerCodeSerialized : reducer/inverted_index_reducer_serialized
+2020-10-24 02:36:32,270 - map-reduce master - CRITICAL - TestMapperFail : False
+2020-10-24 02:36:32,272 - map-reduce master - CRITICAL - TestReducerFail : False
+2020-10-24 02:36:32,279 - map-reduce master - CRITICAL - Starting up map-reduce with 3 mappers and 3 reducers
+2020-10-24 02:36:32,279 - map-reduce master - CRITICAL - creating status map for mappers and reducers
+2020-10-24 02:36:32,284 - map-reduce master - CRITICAL - Master dividing file file1
+2020-10-24 02:36:36,800 - map-reduce master - CRITICAL - Master dividing file file2
+2020-10-24 02:36:42,027 - map-reduce master - CRITICAL - Master dividing file file3
+2020-10-24 02:36:48,022 - map-reduce master - CRITICAL - Divided all loads successfully
+2020-10-24 02:36:48,022 - map-reduce master - CRITICAL - Booting up mappers
+WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+Created [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/mapper0].
+NAME     ZONE           MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP     STATUS
+mapper0  us-central1-a  e2-micro      true         10.128.0.62  35.232.212.128  RUNNING
+WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+Created [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/mapper1].
+NAME     ZONE           MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
+mapper1  us-central1-a  e2-micro      true         10.128.0.63  34.67.118.149  RUNNING
+WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+Created [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/mapper2].
+NAME     ZONE           MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP    EXTERNAL_IP     STATUS
+mapper2  us-central1-a  e2-micro      true         10.128.15.192  35.223.192.227  RUNNING
+2020-10-24 02:37:19,506 - map-reduce master - CRITICAL - Waiting for mappers
+2020-10-24 02:37:42,529 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:1
+2020-10-24 02:37:42,535 - map-reduce master - CRITICAL - idle:3 assigned:0 check:0 finished:0
+2020-10-24 02:37:42,535 - map-reduce master - CRITICAL - Master found mapper 0 idle, waiting for it to boot up
+2020-10-24 02:37:42,535 - map-reduce master - CRITICAL - Master found mapper 1 idle, waiting for it to boot up
+2020-10-24 02:37:42,535 - map-reduce master - CRITICAL - Master found mapper 2 idle, waiting for it to boot up
+2020-10-24 02:38:05,559 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:2
+2020-10-24 02:38:05,564 - map-reduce master - CRITICAL - idle:1 assigned:2 check:0 finished:0
+2020-10-24 02:38:05,564 - map-reduce master - CRITICAL - Master found mapper 0 idle, waiting for it to boot up
+2020-10-24 02:38:05,564 - map-reduce master - CRITICAL - Master found mapper 1 is alive, waiting for it to finish
+2020-10-24 02:38:05,565 - map-reduce master - CRITICAL - Master found mapper 2 is alive, waiting for it to finish
+2020-10-24 02:38:28,589 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:3
+2020-10-24 02:38:28,597 - map-reduce master - CRITICAL - idle:0 assigned:3 check:0 finished:0
+2020-10-24 02:38:28,598 - map-reduce master - CRITICAL - Master found mapper 0 is alive, waiting for it to finish
+2020-10-24 02:38:28,599 - map-reduce master - CRITICAL - Master found mapper 1 is alive, waiting for it to finish
+2020-10-24 02:38:28,600 - map-reduce master - CRITICAL - Master found mapper 2 is alive, waiting for it to finish
+2020-10-24 02:38:51,624 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:4
+2020-10-24 02:38:51,630 - map-reduce master - CRITICAL - idle:0 assigned:3 check:0 finished:0
+2020-10-24 02:38:51,630 - map-reduce master - CRITICAL - Master found mapper 0 is alive, waiting for it to finish
+2020-10-24 02:38:51,632 - map-reduce master - CRITICAL - Master found mapper 1 is alive, waiting for it to finish
+2020-10-24 02:38:51,633 - map-reduce master - CRITICAL - Master found mapper 2 is alive, waiting for it to finish
+2020-10-24 02:39:14,657 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:5
+2020-10-24 02:39:14,662 - map-reduce master - CRITICAL - idle:0 assigned:2 check:0 finished:1
+2020-10-24 02:39:14,662 - map-reduce master - CRITICAL - Master found mapper 0 is alive, waiting for it to finish
+2020-10-24 02:39:14,663 - map-reduce master - CRITICAL - Master found mapper 2 is alive, waiting for it to finish
+2020-10-24 02:39:37,687 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:6
+2020-10-24 02:39:37,693 - map-reduce master - CRITICAL - idle:0 assigned:0 check:0 finished:3
+2020-10-24 02:39:37,693 - map-reduce master - CRITICAL - Done for mappers
+Deleted [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/mapper0].
+Deleted [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/mapper1].
+Deleted [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/mapper2].
+2020-10-24 02:42:04,322 - map-reduce master - CRITICAL - Booting up reducers
+WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+Created [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/reducer0].
+NAME      ZONE           MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP    EXTERNAL_IP    STATUS
+reducer0  us-central1-a  e2-micro      true         10.128.15.193  34.67.154.241  RUNNING
+WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+Created [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/reducer1].
+NAME      ZONE           MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP    EXTERNAL_IP     STATUS
+reducer1  us-central1-a  e2-micro      true         10.128.15.194  35.238.152.214  RUNNING
+WARNING: You have selected a disk size of under [200GB]. This may result in poor I/O performance. For more information, see: https://developers.google.com/compute/docs/disks#performance.
+Created [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/reducer2].
+NAME      ZONE           MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP    EXTERNAL_IP   STATUS
+reducer2  us-central1-a  e2-micro      true         10.128.15.195  34.66.15.237  RUNNING
+2020-10-24 02:42:41,815 - map-reduce master - CRITICAL - Waiting for reducers
+2020-10-24 02:43:04,839 - map-reduce master - CRITICAL - master checking reducer health, heartbeat:1
+2020-10-24 02:43:04,844 - map-reduce master - CRITICAL - idle:2 assigned:1 check:0 finished:0
+2020-10-24 02:43:04,844 - map-reduce master - CRITICAL - Master found reducer 0 is alive, waiting for it to finish
+2020-10-24 02:43:04,845 - map-reduce master - CRITICAL - Master found reducer 1 idle, waiting for it to boot up
+2020-10-24 02:43:04,845 - map-reduce master - CRITICAL - Master found reducer 2 idle, waiting for it to boot up
+2020-10-24 02:43:27,868 - map-reduce master - CRITICAL - master checking reducer health, heartbeat:1
+2020-10-24 02:43:27,873 - map-reduce master - CRITICAL - idle:1 assigned:0 check:0 finished:2
+2020-10-24 02:43:27,874 - map-reduce master - CRITICAL - Master found reducer 2 idle, waiting for it to boot up
+2020-10-24 02:43:50,897 - map-reduce master - CRITICAL - master checking reducer health, heartbeat:1
+2020-10-24 02:43:50,904 - map-reduce master - CRITICAL - idle:0 assigned:0 check:0 finished:3
+2020-10-24 02:43:50,904 - map-reduce master - CRITICAL - Done for reducers
+Deleted [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/reducer0].
+Deleted [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/reducer1].
+Deleted [https://www.googleapis.com/compute/v1/projects/rishabh-gajra/zones/us-central1-a/instances/reducer2].
+2020-10-24 02:46:12,536 - map-reduce master - CRITICAL - getting final output from key-value store
+2020-10-24 02:46:12,557 - map-reduce master - CRITICAL - final answer dumped into file output.txt

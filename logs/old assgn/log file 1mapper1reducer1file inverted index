@@ -1,0 +1,47 @@
+Last login: Mon Oct 12 17:50:12 on ttys000
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+(base) Rishabhs-MacBook-Pro:Uni-CourseWork-Cloud-Project rishabhgajra$ python3 driver_code.py 
+
+
+Driver code for map_reduce running
+
+
+2020-10-12 22:35:04,033 - key-value server - CRITICAL - Starting key-value server
+2020-10-12 22:35:04,034 - key-value server - CRITICAL - You deleted the whole Cache!, starting fresh
+2020-10-12 22:35:09,060 - map-reduce master - CRITICAL - Booting up map-reduce master
+2020-10-12 22:35:09,066 - map-reduce master - CRITICAL - Starting up map-reduce with 1 mappers and 1 reducers
+2020-10-12 22:35:09,066 - map-reduce master - CRITICAL - creating status map for mappers and reducers
+2020-10-12 22:35:09,073 - map-reduce master - CRITICAL - Master dividing file file1
+2020-10-12 22:35:09,080 - map-reduce master - CRITICAL - Divided all loads successfully
+2020-10-12 22:35:09,080 - map-reduce master - CRITICAL - Booting up mappers
+2020-10-12 22:35:09,082 - map-reduce mapper - CRITICAL - Booting up map-reduce mapper with id 0
+2020-10-12 22:35:09,082 - map-reduce mapper - CRITICAL - mapper 0 intialized
+2020-10-12 22:35:09,093 - map-reduce master - CRITICAL - Waiting for mappers
+2020-10-12 22:35:09,098 - map-reduce mapper - CRITICAL - mapper 0 received data 423
+2020-10-12 22:35:09,099 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 0
+2020-10-12 22:35:09,101 - map-reduce mapper - CRITICAL - Mapper 0 has run mapper function
+2020-10-12 22:35:09,102 - map-reduce mapper - CRITICAL - Sending mapper out put for 0 to key value store
+2020-10-12 22:35:09,115 - map-reduce mapper - CRITICAL - output for mapper 0 stored in key value store
+2020-10-12 22:35:09,116 - map-reduce mapper - CRITICAL - mapper 0 done
+2020-10-12 22:35:14,096 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:1
+2020-10-12 22:35:14,097 - map-reduce master - CRITICAL - idle:0 assigned:0 finished:1
+2020-10-12 22:35:14,098 - map-reduce master - CRITICAL - Done for mappers
+2020-10-12 22:35:14,098 - map-reduce master - CRITICAL - Booting up reducers
+2020-10-12 22:35:14,101 - map-reduce reducer - CRITICAL - Booting up map-reduce reducer with id 0
+2020-10-12 22:35:14,101 - map-reduce reducer - CRITICAL - reducer 0 intialized
+2020-10-12 22:35:14,101 - map-reduce master - CRITICAL - Waiting for reducers
+2020-10-12 22:35:14,105 - map-reduce reducer - CRITICAL - reducer 0 received data 811
+2020-10-12 22:35:14,106 - map-reduce reducer - CRITICAL - reducer 0 collected these keys data :75
+2020-10-12 22:35:14,106 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 0
+2020-10-12 22:35:14,108 - map-reduce reducer - CRITICAL - Reducer 0 has run reducer function
+2020-10-12 22:35:14,109 - map-reduce reducer - CRITICAL - Sending reducer out put for 0 to key value store
+2020-10-12 22:35:14,110 - map-reduce reducer - CRITICAL - output for reducer 0stored in key value store
+2020-10-12 22:35:19,103 - map-reduce master - CRITICAL - master checking reducer health, heartbeat:1
+2020-10-12 22:35:19,103 - map-reduce master - CRITICAL - idle:0 assigned:0 finished:1
+2020-10-12 22:35:19,104 - map-reduce master - CRITICAL - Done for reducers
+2020-10-12 22:35:19,104 - map-reduce master - CRITICAL - getting final output from key-value store
+2020-10-12 22:35:19,106 - map-reduce master - CRITICAL - final answer dumped into file output.txt
+^CError in atexit._run_exitfuncs:

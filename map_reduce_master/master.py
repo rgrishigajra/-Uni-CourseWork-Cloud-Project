@@ -8,6 +8,8 @@ import concurrent.futures
 from collections import defaultdict
 import subprocess
 import urllib.request
+import threading
+from flaskserver import create_app
 
 
 class map_reduce:
@@ -233,14 +235,21 @@ class map_reduce:
         self.LOG.log(50, '%s : %s' % (key, value))
         return value
 
+    def app_run(self):
+        self.app.run(host='0.0.0.0')
+
     def __init__(self):
+        self.app = create_app()
+        app_thread = threading.Thread(
+            target=self.app_run, args=())
+        app_thread.start()
+        self.reducer_pool = []
+        self.executor = concurrent.futures.ProcessPoolExecutor()
         self.LOG.log(50, "Booting up map-reduce master")
         self.key_value_ip = str(self.get_server_ip())
         self.master_client = client(self.key_value_ip, int(
             self.config['app_config']['KeyValueServerPort']))
         self.mapper_pool = []
-        self.reducer_pool = []
-        self.executor = concurrent.futures.ProcessPoolExecutor()
         self.master_client.delete_all()
         self.NumberOfMappers = self.get_config('NumberOfMappers')
         self.NumberOfReducers = self.get_config('NumberOfReducers')

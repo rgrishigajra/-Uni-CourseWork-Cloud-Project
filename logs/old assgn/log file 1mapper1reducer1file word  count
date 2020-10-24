@@ -1,0 +1,52 @@
+
+(base) Rishabhs-MacBook-Pro:Uni-CourseWork-Cloud-Project rishabhgajra$ python3 driver_code.py 
+
+
+Driver code for map_reduce running
+
+
+2020-10-12 22:40:17,055 - key-value server - CRITICAL - Starting key-value server
+2020-10-12 22:40:17,055 - key-value server - CRITICAL - New map was loaded from disc!
+2020-10-12 22:40:17,055 - key-value server - CRITICAL - You deleted the whole Cache!, starting fresh
+2020-10-12 22:40:22,077 - map-reduce master - CRITICAL - Booting up map-reduce master
+2020-10-12 22:40:22,080 - map-reduce master - CRITICAL - Starting up map-reduce with 1 mappers and 1 reducers
+2020-10-12 22:40:22,080 - map-reduce master - CRITICAL - creating status map for mappers and reducers
+2020-10-12 22:40:22,089 - map-reduce master - CRITICAL - Master dividing file file1
+2020-10-12 22:40:22,095 - map-reduce master - CRITICAL - Divided all loads successfully
+2020-10-12 22:40:22,095 - map-reduce master - CRITICAL - Booting up mappers
+2020-10-12 22:40:22,096 - map-reduce mapper - CRITICAL - Booting up map-reduce mapper with id 0
+2020-10-12 22:40:22,096 - map-reduce mapper - CRITICAL - mapper 0 intialized
+2020-10-12 22:40:22,109 - map-reduce master - CRITICAL - Waiting for mappers
+2020-10-12 22:40:22,114 - map-reduce mapper - CRITICAL - mapper 0 received data 423
+2020-10-12 22:40:22,115 - map-reduce mapper - CRITICAL - Running supplied mapper on worker 0
+2020-10-12 22:40:22,118 - map-reduce mapper - CRITICAL - Mapper 0 has run mapper function
+2020-10-12 22:40:22,118 - map-reduce mapper - CRITICAL - Sending mapper out put for 0 to key value store
+2020-10-12 22:40:22,120 - map-reduce mapper - CRITICAL - output for mapper 0 stored in key value store
+2020-10-12 22:40:22,120 - map-reduce mapper - CRITICAL - mapper 0 done
+2020-10-12 22:40:27,112 - map-reduce master - CRITICAL - master checking mapper health, heartbeat:1
+2020-10-12 22:40:27,114 - map-reduce master - CRITICAL - idle:0 assigned:0 finished:1
+2020-10-12 22:40:27,114 - map-reduce master - CRITICAL - Done for mappers
+2020-10-12 22:40:27,114 - map-reduce master - CRITICAL - Booting up reducers
+2020-10-12 22:40:27,117 - map-reduce reducer - CRITICAL - Booting up map-reduce reducer with id 0
+2020-10-12 22:40:27,117 - map-reduce reducer - CRITICAL - reducer 0 intialized
+2020-10-12 22:40:27,118 - map-reduce master - CRITICAL - Waiting for reducers
+2020-10-12 22:40:27,121 - map-reduce reducer - CRITICAL - reducer 0 received data 57
+2020-10-12 22:40:27,122 - map-reduce reducer - CRITICAL - reducer 0 collected these keys data :3
+2020-10-12 22:40:27,123 - map-reduce reducer - CRITICAL - Running supplied reducer on worker 0
+2020-10-12 22:40:27,124 - map-reduce reducer - CRITICAL - Reducer 0 has run reducer function
+2020-10-12 22:40:27,125 - map-reduce reducer - CRITICAL - Sending reducer out put for 0 to key value store
+2020-10-12 22:40:27,126 - map-reduce reducer - CRITICAL - output for reducer 0stored in key value store
+2020-10-12 22:40:32,119 - map-reduce master - CRITICAL - master checking reducer health, heartbeat:1
+2020-10-12 22:40:32,120 - map-reduce master - CRITICAL - idle:0 assigned:0 finished:1
+2020-10-12 22:40:32,120 - map-reduce master - CRITICAL - Done for reducers
+2020-10-12 22:40:32,120 - map-reduce master - CRITICAL - getting final output from key-value store
+2020-10-12 22:40:32,122 - map-reduce master - CRITICAL - final answer dumped into file output.txt
+^CError in atexit._run_exitfuncs:
+Process ForkProcess-7:
+Process ForkProcess-2:
+Process ForkProcess-4:
+Process ForkProcess-3:
+Process ForkProcess-6:
+Process ForkProcess-8:
+Process ForkProcess-5:
+2020-10-12 22:40:40,239 - key-value server - CRITICAL - Keyboard interrupt, Exiting the server

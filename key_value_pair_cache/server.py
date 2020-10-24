@@ -214,7 +214,8 @@ class server:
                 return
             self.LOG.log(20, "client message received!")
             self.LOG.log(10, client_message[:30])
-            client_msg_new_line_sep = client_message.decode("utf-8", "ignore").split(" \r\n")
+            client_msg_new_line_sep = client_message.decode(
+                "utf-8", "ignore").split(" \r\n")
             client_msg_args = client_msg_new_line_sep[0].split(' ')
             client_msg_args.append(client_msg_new_line_sep[1])
             try:
