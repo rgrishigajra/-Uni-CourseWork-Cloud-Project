@@ -18,6 +18,13 @@ def get_server_ip():
     return ip
 
 
+def get_master_ip():
+    output = subprocess.run(
+        "gcloud compute instances describe master-map-reduce --zone=us-central1-a --format='get(networkInterfaces[0].accessConfigs[0].natIP)'", shell=True, check=True, stdout=subprocess.PIPE)
+    ip = output.stdout.decode()[:-1]
+    return ip
+
+
 def boot_master_instance(instance_name, startup_script):
     command = "gcloud compute instances create %s --zone us-central1-a --machine-type=e2-micro --image=ubuntu-1804-bionic-v20201014 --image-project=ubuntu-os-cloud --boot-disk-size=10GB --scopes=compute-rw,storage-ro --metadata-from-file startup-script=%s --metadata NumberOfMappers=%s,NumberOfReducers=%s,MapperCodeSerialized=%s,ReducerCodeSerialized=%s,TestMapperFail=%s,TestReducerFail=%s" % (
         instance_name, startup_script, config['app_config']['NumberOfMappers'], config['app_config']['NumberOfReducers'], config['app_config']['MapperCodeSerialized'], config['app_config']['ReducerCodeSerialized'], config['app_config']['TestMapperFail'], config['app_config']['TestReducerFail'])
@@ -60,3 +67,4 @@ if __name__ == "__main__":
     boot_master_instance('master-map-reduce', 'master_starter.sh')
     print('\n\n please run the following to ssh into the master-map-reduce:\n',
           'gcloud compute ssh master-map-reduce --zone=us-central1-a ')
+    print('you can view the output at:'+get_master_ip()+":5000 once its done")
