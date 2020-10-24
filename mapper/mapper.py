@@ -140,9 +140,9 @@ class mapper:
         self.number_of_reducers = int(self.mapper_client.get_key(
             'NumberOfReducers').split(' ')[3])
         self.mapper_code_serialized = self.mapper_client.get_key(
-            'MapperCodeSerialized').split(' ')[3]
+            'MapperCodeSerialized').split(' ')[3][2:]
         self.test_mapper_fail = self.mapper_client.get_key(
-            'TestMapperFail').split(' ')[3]
+            'TestMapperFail').split(' ')[3][2:]
         self.mapper_id = self.get_mapper_id()
         self.LOG.log(50, "Booting up map-reduce mapper with id " +
                      str(self.mapper_id))

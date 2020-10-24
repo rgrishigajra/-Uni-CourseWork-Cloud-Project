@@ -141,9 +141,9 @@ class reducer:
         self.number_of_reducers = int(self.reducer_client.get_key(
             'NumberOfReducers').split(' ')[3])
         self.reducer_code_serialized = self.reducer_client.get_key(
-            'ReducerCodeSerialized').split(' ')[3]
+            'ReducerCodeSerialized').split(' ')[3][2:]
         self.test_reducer_fail = self.reducer_client.get_key(
-            'TestReducerFail').split(' ')[3]
+            'TestReducerFail').split(' ')[3][2:]
         self.reducer_id = self.get_reducer_id()
         self.LOG.log(50, "Booting up map-reduce reducer with id " +
                      str(self.reducer_id))
