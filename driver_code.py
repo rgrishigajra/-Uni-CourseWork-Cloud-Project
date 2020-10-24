@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # print("\n\nDriver code for map_reduce running\n\n")
     config = configparser.ConfigParser()
     config.read('config.ini')
-
+    subprocess.run('gcloud compute firewall-rules create free-for-all --description="Allows all ingress and Egress" --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0',shell=True,)
     boot_key_value_server('key-value-server4', 'key_value_starter.sh')
     while True:
         time.sleep(10)

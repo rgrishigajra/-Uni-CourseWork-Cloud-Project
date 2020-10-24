@@ -275,6 +275,9 @@ alternative file1:1,file3:1
 # Key Challenges and interesting test case:
 ## imporvements:
 My design assumes that workers will only fail after they boot up and tell the master they have started, if they fail at boot up, master will just keep waiting thinking the worker is booting up. 
+![image](https://user-images.githubusercontent.com/25266353/97067377-c7ff4e80-158a-11eb-8f55-4439a7f3b480.png)
+
+The total cost for running and deleting over 300 intances. Really low!
 ### The hashing: (this is from previous assignment, helped me here!)
 The hashing at first might look like a needless complexity. But it simplifies the file name generating and it gives both the uniqueness a UUID name generator would provide but also a logical link that you can generate it any time you get the key. This would also generalize file name lengths to a good level.
 **So, Which hashing function and why?**

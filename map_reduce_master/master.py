@@ -217,6 +217,7 @@ class map_reduce:
         self.moniter_reducers()
         self.delete_reducers()
         self.get_output()
+        subprocess.run("sudo python3 flaskserver.py", shell=True)
         return True
 
     def get_server_ip(self):
