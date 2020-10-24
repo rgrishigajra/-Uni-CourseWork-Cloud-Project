@@ -42,7 +42,10 @@ if __name__ == "__main__":
     # print("\n\nDriver code for map_reduce running\n\n")
     config = configparser.ConfigParser()
     config.read('config.ini')
-    subprocess.run('gcloud compute firewall-rules create free-for-all --description="Allows all ingress and Egress" --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0',shell=True,)
+    try:
+        subprocess.run('gcloud compute firewall-rules create free-for-all --description="Allows all ingress and Egress" --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0', shell=True,)
+    except:
+        None
     boot_key_value_server('key-value-server4', 'key_value_starter.sh')
     while True:
         time.sleep(10)
@@ -55,4 +58,5 @@ if __name__ == "__main__":
     print('\n\n\n Key Value Server Up\n\n\n')
     print('Booting master-map-reduce')
     boot_master_instance('master-map-reduce', 'master_starter.sh')
-    print('\n\n please run the following to ssh into the master-map-reduce:\n','gcloud compute ssh master-map-reduce --zone=us-central1-a ')
+    print('\n\n please run the following to ssh into the master-map-reduce:\n',
+          'gcloud compute ssh master-map-reduce --zone=us-central1-a ')
