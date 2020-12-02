@@ -3,3 +3,21 @@
   width: 100%;
   text-align: center;
 }
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -50px;
+  margin-left: -50px;
+}
+.title{
+  font-size: 30px;
+}
+.header{
+  display: flex;
+  justify-content: space-around;
+}
+.chart{
+  width: 90%;
+  margin: auto;
+}

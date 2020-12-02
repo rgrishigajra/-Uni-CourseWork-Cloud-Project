@@ -54,16 +54,20 @@ def sentence_length(request):
     text = resp.text
     sentences = split_into_sentences(text)
     length_frequency = defaultdict(int)
-    max_len = 0
+    for i in range(0,60):
+        length_frequency[i] = 0
     for sentence in sentences:
         words = re.findall(r'\w+', sentence)
-        length_frequency[len(words)] += 1
-        max_len = max(len(words), max_len)
+        l = len(words)
+        if l < 60:
+            length_frequency[l] += 1
+    
     response = jsonify({
         'frequency': length_frequency
     })
     response.headers.add('Access-Control-Allow-Headers',
-                         "Content-Tpe,Authorization,true")
+                         "Content-Type,Authorization,true")
     response.headers.add('Access-Control-Allow-Methods',
                          'GET,PUT,POST,PATCH,DELETE,OPTIONS')
+    response.headers["Access-Control-Allow-Origin"] = "*"
     return response
