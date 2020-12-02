@@ -111,9 +111,10 @@ function Homepage() {
       });
   };
   const autoFunction = (textUrl) => {
-    setLabel(textUrl.title);
-    setURL(textUrl.url);
-    return textUrl.url;
+    // setLabel(textUrl.title);
+    // setURL(textUrl.url);
+
+    return !!textUrl.title ? textUrl.title : textUrl;
   };
   const updateDataSet = (name, data) => {
     const red = Math.random() * 255;
@@ -142,7 +143,7 @@ function Homepage() {
           The App parses the plain text from the urls and draws a histogram of
           the sentence length distribution.
         </div>
-        <div>Enter a book name and url with text</div>
+        <div>Enter a book name and url with text (press enter after pasting a url or else it will get cleared)</div>
         <br />
         <div className="header">
           <TextField
@@ -158,14 +159,25 @@ function Homepage() {
             }}
           />
           <Autocomplete
-            selectOnFocus
+            // selectOnFocus
             clearOnBlur
             handleHomeEndKeys
             options={textUrls}
             style={{ width: 500 }}
-            renderOption={(textUrls) => textUrls.title}
+            renderOption={(textUrls) =>
+              !!textUrls.title ? textUrls.title : textUrls
+            }
             getOptionLabel={autoFunction}
-            freeSolo
+            onChange={(event, newValue) => {
+              // console.log(event, newValue);
+              setURL(newValue);
+              // setLabel(newValue);
+            }}
+            freeSolo={true}
+            onInputChange={(event, newInputValue) => {
+              setURL(newInputValue.url);
+              setLabel(newInputValue.title);
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -176,9 +188,9 @@ function Homepage() {
                 variant="outlined"
                 style={{ width: 500 }}
                 value={url}
-                onChange={(event) => {
-                  setURL(event.target.value);
-                }}
+                // onChange={(event) => {
+                //   setURL(event.target.value);
+                // }}
               />
             )}
           />
@@ -215,8 +227,9 @@ function Homepage() {
         />
       </div>
       <div>
-        The app caches results for previous books so try comparing the loading times for
-        a new url vs same url twice, the repeats should be significantly faster.
+        The app caches results for previous books so try comparing the loading
+        times for a new url vs same url twice, the repeats should be
+        significantly faster.
       </div>
     </div>
   );
