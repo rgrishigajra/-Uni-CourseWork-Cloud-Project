@@ -83,7 +83,7 @@ function Homepage() {
         }
       )
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         if (res.data.success == true) {
           console.log(res.data);
           updateDataSet(l, Object.values(res.data.frequency));
@@ -97,7 +97,7 @@ function Homepage() {
               }
             )
             .then((res) => {
-              console.log(res.data.frequency);
+              // console.log(res.data.frequency);
               updateDataSet(l, Object.values(res.data.frequency));
               setLoading(false);
             })
@@ -114,7 +114,7 @@ function Homepage() {
     // setLabel(textUrl.title);
     // setURL(textUrl.url);
 
-    return !!textUrl.title ? textUrl.title : textUrl;
+    return !!textUrl.url ? textUrl.url : textUrl;
   };
   const updateDataSet = (name, data) => {
     const red = Math.random() * 255;
@@ -130,7 +130,9 @@ function Homepage() {
     const oldDatasets = datasets;
     setData([...oldDatasets, newSet]);
   };
-
+  useEffect(() => {
+    console.log(url, label);
+  }, [label, url]);
   return (
     <div className="body-container">
       <div>
@@ -143,7 +145,10 @@ function Homepage() {
           The App parses the plain text from the urls and draws a histogram of
           the sentence length distribution.
         </div>
-        <div>Enter a book name and url with text (press enter after pasting a url or else it will get cleared)</div>
+        <div>
+          Enter a book name and url with text (press enter after pasting a url
+          or else it will get cleared)
+        </div>
         <br />
         <div className="header">
           <TextField
@@ -170,11 +175,15 @@ function Homepage() {
             getOptionLabel={autoFunction}
             onChange={(event, newValue) => {
               // console.log(event, newValue);
-              setURL(newValue);
-              // setLabel(newValue);
+              const l = !!newValue ? newValue.title : '';
+              const u = !!newValue ? newValue.url : '';
+
+              setLabel(l);
+              setURL(u);
             }}
             freeSolo={true}
             onInputChange={(event, newInputValue) => {
+              // console.log(event, newInputValue);
               setURL(newInputValue.url);
               setLabel(newInputValue.title);
             }}
