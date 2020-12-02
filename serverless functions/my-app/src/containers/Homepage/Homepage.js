@@ -8,8 +8,21 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 
 const options = {
   scales: {
+    xAxes: [
+      {
+        display: true,
+        scaleLabel: {
+          display: true,
+          labelString: 'Number of words in sentence',
+        },
+      },
+    ],
     yAxes: [
       {
+        scaleLabel: {
+          display: true,
+          labelString: 'Number of sentences',
+        },
         ticks: {
           beginAtZero: true,
         },
@@ -64,15 +77,34 @@ function Homepage() {
     setLabel('');
     axios
       .post(
-        `https://us-central1-rishabh-gajra.cloudfunctions.net/sentence_length`,
+        `https://us-central1-rishabh-gajra.cloudfunctions.net/cached_data`,
         {
           url: u,
         }
       )
       .then((res) => {
-        console.log(res.data.frequency);
-        updateDataSet(l, Object.values(res.data.frequency));
-        setLoading(false);
+        console.log(res.data);
+        if (res.data.success == true) {
+          console.log(res.data);
+          updateDataSet(l, Object.values(res.data.frequency));
+          setLoading(false);
+        } else {
+          axios
+            .post(
+              `https://us-central1-rishabh-gajra.cloudfunctions.net/sentence_length`,
+              {
+                url: u,
+              }
+            )
+            .then((res) => {
+              console.log(res.data.frequency);
+              updateDataSet(l, Object.values(res.data.frequency));
+              setLoading(false);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        }
       })
       .catch(function (error) {
         console.log(error);
@@ -153,6 +185,7 @@ function Homepage() {
 
           <Button
             color="secondary"
+            variant="contained"
             onClick={() => {
               sendRequest();
             }}
@@ -161,6 +194,7 @@ function Homepage() {
           </Button>
           <Button
             color="secondary"
+            variant="contained"
             onClick={() => {
               setURL('');
               setLabel('');
@@ -171,14 +205,18 @@ function Homepage() {
           </Button>
         </div>
       </div>
-      <div className='chart'>
-      <Line
-        data={{
-          labels: [...Array(60).keys()],
-          datasets: datasets,
-        }}
-        options={options}
-      />
+      <div className="chart">
+        <Line
+          data={{
+            labels: [...Array(60).keys()],
+            datasets: datasets,
+          }}
+          options={options}
+        />
+      </div>
+      <div>
+        The app caches results for previous books so try comparing the loading times for
+        a new url vs same url twice, the repeats should be significantly faster.
       </div>
     </div>
   );
